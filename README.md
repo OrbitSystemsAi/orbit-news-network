@@ -4,12 +4,12 @@ Orbit News Network (ONN) is the shared news, publishing, distribution, and conte
 
 ## Deployment status
 
-ONN is prepared for a **private MVP deployment**, but it is not currently published or deployed from this checkout. GitHub authentication, the target private repository, Vercel ownership, environment variables, Neon connectivity, migrations, and deployment smoke tests must be verified before this status changes.
+ONN is published to a private GitHub repository and prepared for a **private MVP deployment**, but it is not yet deployed. Neon connectivity, migration application, the Vercel GitHub-app permission, the public URL, and remote deployment smoke tests remain outstanding.
 
-- Intended GitHub repository: `Orbit-Systems-AI/orbit-news-network` (private; not yet verified or created)
-- Intended Vercel project: `orbit-news-network` (not yet verified or created)
+- GitHub repository: `OrbitSystemsAi/orbit-news-network` (private, `main`)
+- Vercel project: `orbit-systems-ai/orbit-news-network` (created; Git connection awaiting private-repository permission)
 - Vercel URL: not assigned
-- Neon: expected existing `orbit-news-network` Free project; no credentials are present locally
+- Neon: expected existing `orbit-news-network` Free project; connection values are not yet configured
 - Cost target: $0/month using GitHub Free, Vercel free private testing where permitted, Neon Free, and open-source dependencies
 - Access: `/admin/**` and `/portal/**` use a temporary HTTP-only signed access session; this is not full operator or subscriber authentication
 - Custom domain: deliberately out of scope

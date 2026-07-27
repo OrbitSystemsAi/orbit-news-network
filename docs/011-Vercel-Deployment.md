@@ -6,6 +6,8 @@ The intended Vercel project is `orbit-news-network`, owned by the explicitly ver
 
 Before linking, authenticate the CLI, list teams/projects, confirm the intended free owner, confirm no project with this name exists, and confirm Vercel can read the private GitHub repository. Do not make the repository public to solve an integration permission problem.
 
+Current status (2026-07-27): the project exists under `orbit-systems-ai`, Next.js was detected, and non-database Production and Preview variables are configured. Git integration is blocked until the Vercel GitHub app is granted access to the new private `OrbitSystemsAi/orbit-news-network` repository. `DATABASE_URL`, `DIRECT_URL`, and `NEXT_PUBLIC_APP_URL` are intentionally unset; no remote deployment has been attempted.
+
 ## Controlled migration and deployment
 
 ONN uses manual production migration before application deployment:
