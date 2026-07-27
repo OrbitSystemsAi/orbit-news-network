@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default async function AccessPage({ searchParams }: { searchParams: Promise<{ returnTo?: string; error?: string }> }) {
   const query = await searchParams;
   const returnTo = query.returnTo?.startsWith("/") && !query.returnTo.startsWith("//") ? query.returnTo : "/portal";
@@ -11,7 +13,10 @@ export default async function AccessPage({ searchParams }: { searchParams: Promi
       </label>
       <input type="hidden" name="returnTo" value={returnTo} />
       {query.error && <p role="alert" style={{color:"#ff9c9c",fontSize:12}}>Access was not accepted.</p>}
-      <button type="submit" style={{marginTop:18,padding:"10px 14px",background:"#176cc0",color:"white",border:0,borderRadius:6}}>Continue</button>
+      <div style={{marginTop:18,display:"flex",alignItems:"center",gap:12}}>
+        <button type="submit" style={{padding:"10px 14px",background:"#176cc0",color:"white",border:0,borderRadius:6}}>Continue</button>
+        <Link href="/" style={{padding:"9px 14px",color:"#b8c8d8",border:"1px solid #35516a",borderRadius:6,textDecoration:"none"}}>Cancel</Link>
+      </div>
     </form>
   </main>;
 }
