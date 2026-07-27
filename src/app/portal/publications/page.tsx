@@ -1,0 +1,1 @@
+import { PageHeader } from "@/components/dashboard";import { AdminResource } from "@/components/admin-resource";export default function Page(){return <><PageHeader mode="portal" title="Publications" description="Publishing channels owned by the selected project"/><AdminResource endpoint="/api/internal/publications" label="Publications"/></>}

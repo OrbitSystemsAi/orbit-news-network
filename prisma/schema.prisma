@@ -1,0 +1,600 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PlatformStatus {
+  ACTIVE
+  PAUSED
+  DISABLED
+}
+
+enum ProjectEnvironment {
+  DEVELOPMENT
+  PRODUCTION
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  REVOKED
+  DISABLED
+}
+
+enum FeedType {
+  RSS
+  ATOM
+  AUTO
+}
+
+enum FeedSourceStatus {
+  PENDING_REVIEW
+  ACTIVE
+  PAUSED
+  FAILED
+  REJECTED
+}
+
+enum ArticleStatus {
+  ACTIVE
+  EXPIRED
+  HIDDEN
+  REJECTED
+}
+
+enum TopicAssignmentSource {
+  FEED_MAPPING
+  KEYWORD_RULE
+  MANUAL
+}
+
+enum ProcessingTrigger {
+  ON_DEMAND
+  MANUAL
+  SOURCE_TEST
+}
+
+enum ProcessingStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  PARTIAL
+  FAILED
+  SKIPPED
+}
+
+enum NewsInteractionType {
+  SHOWN
+  OPENED
+  SAVED
+  DISMISSED
+  USEFUL
+  NOT_RELEVANT
+}
+
+enum SubmissionStatus {
+  RECEIVED
+  VALIDATING
+  PLANNED_REVIEW
+  ACCEPTED
+  REJECTED
+}
+
+enum DistributionLevel {
+  PRIVATE
+  PROFILE
+  APPLICATION
+  NETWORK
+  PARTNER
+  PUBLIC
+}
+
+enum PublicationStatus {
+  ACTIVE
+  PAUSED
+  DISABLED
+}
+
+enum ContributorStatus {
+  ACTIVE
+  SUSPENDED
+  REMOVED
+}
+
+enum ContentType {
+  ARTICLE
+  ANNOUNCEMENT
+  INSIGHT
+  RESEARCH
+  EVENT
+  PRODUCT_UPDATE
+  ALERT
+  PRESS_RELEASE
+}
+
+enum ContentStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  PUBLISHED
+  PAUSED
+  ARCHIVED
+}
+
+enum ContentTopicAssignmentSource {
+  SUBMITTED
+  PUBLICATION_DEFAULT
+  RULE_BASED
+  MANUAL
+}
+
+enum RuleStatus {
+  ACTIVE
+  PAUSED
+  DISABLED
+}
+
+enum DeliveryStatus {
+  ELIGIBLE
+  DELIVERED
+  SUPPRESSED
+  EXPIRED
+  REVOKED
+}
+
+enum ContentInteractionType {
+  SHOWN
+  OPENED
+  SAVED
+  DISMISSED
+  USEFUL
+  NOT_RELEVANT
+  SHARED
+}
+
+enum ModerationResult {
+  APPROVED
+  REJECTED
+  REVIEW_REQUIRED
+}
+
+enum DecisionSource {
+  VALIDATION_RULE
+  CONTENT_RULE
+  ADMINISTRATOR
+}
+
+enum ChangedByType {
+  PROJECT_API
+  ADMINISTRATOR
+  SYSTEM
+}
+
+model Organization {
+  id        String         @id @default(cuid())
+  name      String
+  slug      String         @unique
+  status    PlatformStatus @default(ACTIVE)
+  projects  Project[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model Project {
+  id                            String                 @id @default(cuid())
+  organizationId                String
+  organization                  Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name                          String
+  slug                          String
+  environment                   ProjectEnvironment     @default(DEVELOPMENT)
+  status                        PlatformStatus         @default(ACTIVE)
+  maximumItemsPerRequest        Int                    @default(4)
+  minimumRefreshIntervalMinutes Int                    @default(30)
+  apiKeys                       ProjectApiKey[]
+  publications                  Publication[]
+  contributors                  ExternalContributor[]
+  submissions                   ContentSubmission[]
+  distributionRules             DistributionRule[]
+  requestLogs                   ApiRequestLog[]
+  topicSubscriptions            ProjectTopic[]
+  processingRuns                ProcessingRun[]
+  interactions                  NewsInteraction[]
+  destinationTargets            DistributionTarget[]
+  deliveries                    DistributionDelivery[]
+  contentInteractions           ContentInteraction[]
+  publicContentAccess           Boolean                @default(false)
+  createdAt                     DateTime               @default(now())
+  updatedAt                     DateTime               @updatedAt
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, status])
+}
+
+model ProjectApiKey {
+  id          String             @id @default(cuid())
+  projectId   String
+  project     Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  environment ProjectEnvironment
+  prefix      String             @unique
+  keyHash     String
+  scopes      String[]
+  status      ApiKeyStatus       @default(ACTIVE)
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime           @default(now())
+
+  @@index([projectId, status])
+}
+
+model Topic {
+  id                 String                   @id @default(cuid())
+  name               String
+  slug               String                   @unique
+  description        String?
+  status             PlatformStatus           @default(ACTIVE)
+  feedSources        FeedSourceTopic[]
+  externalArticles   ExternalArticleTopic[]
+  projects           ProjectTopic[]
+  contentSubmissions ContentSubmissionTopic[]
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+}
+
+model ProjectTopic {
+  projectId     String
+  topicId       String
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  topic         Topic          @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  defaultWeight Float          @default(1)
+  status        PlatformStatus @default(ACTIVE)
+
+  @@id([projectId, topicId])
+  @@index([topicId, status])
+}
+
+model FeedSource {
+  id                            String                @id @default(cuid())
+  name                          String
+  slug                          String                @unique
+  feedUrl                       String                @unique
+  websiteUrl                    String?
+  feedType                      FeedType              @default(AUTO)
+  status                        FeedSourceStatus      @default(PENDING_REVIEW)
+  minimumRefreshIntervalMinutes Int                   @default(30)
+  lastRefreshAttemptedAt        DateTime?
+  lastSuccessfulRefreshAt       DateTime?
+  refreshLockAt                 DateTime?
+  consecutiveFailureCount       Int                   @default(0)
+  topics                        FeedSourceTopic[]
+  articles                      ExternalArticle[]
+  runSources                    ProcessingRunSource[]
+  createdAt                     DateTime              @default(now())
+  updatedAt                     DateTime              @updatedAt
+
+  @@index([status, lastSuccessfulRefreshAt])
+  @@index([refreshLockAt])
+}
+
+model FeedSourceTopic {
+  feedSourceId String
+  topicId      String
+  feedSource   FeedSource @relation(fields: [feedSourceId], references: [id], onDelete: Cascade)
+  topic        Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  weight       Float      @default(1)
+
+  @@id([feedSourceId, topicId])
+  @@index([topicId])
+}
+
+model ExternalArticle {
+  id                 String                 @id @default(cuid())
+  feedSourceId       String
+  feedSource         FeedSource             @relation(fields: [feedSourceId], references: [id], onDelete: Cascade)
+  externalIdentifier String?
+  canonicalUrl       String                 @unique
+  title              String
+  description        String?
+  author             String?
+  imageUrl           String?
+  publishedAt        DateTime
+  collectedAt        DateTime               @default(now())
+  contentFingerprint String                 @unique
+  sourceMetadata     Json?
+  status             ArticleStatus          @default(ACTIVE)
+  topics             ExternalArticleTopic[]
+  interactions       NewsInteraction[]
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  @@index([feedSourceId, externalIdentifier])
+  @@index([publishedAt, status])
+}
+
+model ExternalArticleTopic {
+  externalArticleId String
+  topicId           String
+  externalArticle   ExternalArticle       @relation(fields: [externalArticleId], references: [id], onDelete: Cascade)
+  topic             Topic                 @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  score             Float
+  assignmentSource  TopicAssignmentSource
+
+  @@id([externalArticleId, topicId, assignmentSource])
+  @@index([topicId, score])
+}
+
+model ProcessingRun {
+  id                 String                @id @default(cuid())
+  triggerType        ProcessingTrigger
+  projectId          String?
+  project            Project?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  status             ProcessingStatus      @default(PENDING)
+  startedAt          DateTime              @default(now())
+  completedAt        DateTime?
+  sourcesRequested   Int                   @default(0)
+  sourcesProcessed   Int                   @default(0)
+  articlesDiscovered Int                   @default(0)
+  articlesAdded      Int                   @default(0)
+  duplicatesSkipped  Int                   @default(0)
+  articlesExpired    Int                   @default(0)
+  errorSummary       String?
+  sources            ProcessingRunSource[]
+
+  @@index([projectId, startedAt])
+  @@index([status, startedAt])
+}
+
+model ProcessingRunSource {
+  processingRunId   String
+  feedSourceId      String
+  processingRun     ProcessingRun    @relation(fields: [processingRunId], references: [id], onDelete: Cascade)
+  feedSource        FeedSource       @relation(fields: [feedSourceId], references: [id], onDelete: Cascade)
+  status            ProcessingStatus
+  itemsReceived     Int              @default(0)
+  itemsAdded        Int              @default(0)
+  duplicatesSkipped Int              @default(0)
+  durationMs        Int              @default(0)
+  errorMessage      String?
+
+  @@id([processingRunId, feedSourceId])
+  @@index([feedSourceId])
+}
+
+model ApiRequestLog {
+  id             String   @id @default(cuid())
+  projectId      String?
+  project        Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  endpoint       String
+  httpMethod     String
+  responseStatus Int
+  durationMs     Int
+  requestId      String   @unique
+  requestedAt    DateTime @default(now())
+
+  @@index([projectId, requestedAt])
+  @@index([requestedAt])
+}
+
+model NewsInteraction {
+  id                String              @id @default(cuid())
+  projectId         String
+  project           Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  externalUserId    String
+  externalArticleId String
+  externalArticle   ExternalArticle     @relation(fields: [externalArticleId], references: [id], onDelete: Cascade)
+  interactionType   NewsInteractionType
+  createdAt         DateTime            @default(now())
+
+  @@index([projectId, externalUserId, createdAt])
+  @@index([externalArticleId, interactionType])
+}
+
+model Publication {
+  id                       String              @id @default(cuid())
+  projectId                String
+  project                  Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name                     String
+  slug                     String
+  description              String?
+  status                   PublicationStatus   @default(ACTIVE)
+  defaultDistributionLevel DistributionLevel   @default(APPLICATION)
+  submissions              ContentSubmission[]
+  distributionRules        DistributionRule[]
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
+
+  @@unique([projectId, slug])
+  @@index([projectId])
+}
+
+model ExternalContributor {
+  id                    String              @id @default(cuid())
+  projectId             String
+  project               Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  externalContributorId String
+  displayName           String?
+  byline                String?
+  profileUrl            String?
+  avatarUrl             String?
+  status                ContributorStatus   @default(ACTIVE)
+  submissions           ContentSubmission[]
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@unique([projectId, externalContributorId])
+}
+
+model ContentSubmission {
+  id                  String                   @id @default(cuid())
+  projectId           String
+  project             Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  publicationId       String
+  publication         Publication              @relation(fields: [publicationId], references: [id], onDelete: Restrict)
+  contributorId       String?
+  contributor         ExternalContributor?     @relation(fields: [contributorId], references: [id], onDelete: SetNull)
+  externalContentId   String
+  contentType         ContentType
+  title               String
+  slug                String
+  summary             String?
+  body                String
+  canonicalUrl        String?
+  externalMediaUrl    String?
+  language            String                   @default("en")
+  status              ContentStatus            @default(SUBMITTED)
+  distributionLevel   DistributionLevel
+  publishedAt         DateTime?
+  submittedAt         DateTime                 @default(now())
+  contentFingerprint  String
+  metadata            Json?
+  topics              ContentSubmissionTopic[]
+  citations           ContentCitation[]
+  deliveries          DistributionDelivery[]
+  interactions        ContentInteraction[]
+  moderationDecisions ModerationDecision[]
+  statusHistory       ContentStatusHistory[]
+  idempotencyRecords  ContentIdempotency[]
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  @@unique([projectId, externalContentId])
+  @@unique([projectId, contentFingerprint])
+  @@unique([publicationId, slug])
+  @@index([projectId, status, createdAt])
+  @@index([publicationId, status])
+  @@index([contentType, distributionLevel])
+  @@index([publishedAt])
+}
+
+model DistributionRule {
+  id                       String                 @id @default(cuid())
+  projectId                String
+  project                  Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  publicationId            String?
+  publication              Publication?           @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  name                     String
+  status                   RuleStatus             @default(ACTIVE)
+  minimumDistributionLevel DistributionLevel
+  requiredTopicSlugs       String[]
+  targets                  DistributionTarget[]
+  deliveries               DistributionDelivery[]
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+
+  @@index([projectId, status])
+  @@index([publicationId])
+}
+
+model ContentSubmissionTopic {
+  contentSubmissionId String
+  topicId             String
+  contentSubmission   ContentSubmission            @relation(fields: [contentSubmissionId], references: [id], onDelete: Cascade)
+  topic               Topic                        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  weight              Float
+  assignmentSource    ContentTopicAssignmentSource
+
+  @@id([contentSubmissionId, topicId, assignmentSource])
+  @@index([topicId, weight])
+}
+
+model ContentCitation {
+  id                  String            @id @default(cuid())
+  contentSubmissionId String
+  contentSubmission   ContentSubmission @relation(fields: [contentSubmissionId], references: [id], onDelete: Cascade)
+  label               String
+  url                 String
+  sourceName          String?
+  citationOrder       Int
+
+  @@unique([contentSubmissionId, citationOrder])
+}
+
+model DistributionTarget {
+  distributionRuleId   String
+  destinationProjectId String
+  distributionRule     DistributionRule @relation(fields: [distributionRuleId], references: [id], onDelete: Cascade)
+  destinationProject   Project          @relation(fields: [destinationProjectId], references: [id], onDelete: Cascade)
+  status               RuleStatus       @default(ACTIVE)
+
+  @@id([distributionRuleId, destinationProjectId])
+  @@index([destinationProjectId, status])
+}
+
+model DistributionDelivery {
+  id                   String            @id @default(cuid())
+  contentSubmissionId  String
+  destinationProjectId String
+  distributionRuleId   String?
+  contentSubmission    ContentSubmission @relation(fields: [contentSubmissionId], references: [id], onDelete: Cascade)
+  destinationProject   Project           @relation(fields: [destinationProjectId], references: [id], onDelete: Cascade)
+  distributionRule     DistributionRule? @relation(fields: [distributionRuleId], references: [id], onDelete: SetNull)
+  status               DeliveryStatus    @default(ELIGIBLE)
+  eligibleAt           DateTime          @default(now())
+  deliveredAt          DateTime?
+  firstShownAt         DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  @@unique([contentSubmissionId, destinationProjectId])
+  @@index([destinationProjectId, status, eligibleAt])
+}
+
+model ContentInteraction {
+  id                   String                 @id @default(cuid())
+  contentSubmissionId  String
+  destinationProjectId String
+  externalUserId       String
+  interactionType      ContentInteractionType
+  contentSubmission    ContentSubmission      @relation(fields: [contentSubmissionId], references: [id], onDelete: Cascade)
+  destinationProject   Project                @relation(fields: [destinationProjectId], references: [id], onDelete: Cascade)
+  createdAt            DateTime               @default(now())
+
+  @@index([destinationProjectId, externalUserId, createdAt])
+  @@index([contentSubmissionId, interactionType])
+}
+
+model ModerationDecision {
+  id                  String            @id @default(cuid())
+  contentSubmissionId String
+  contentSubmission   ContentSubmission @relation(fields: [contentSubmissionId], references: [id], onDelete: Cascade)
+  decision            ModerationResult
+  reasonCode          String
+  notes               String?
+  decidedAt           DateTime          @default(now())
+  decisionSource      DecisionSource
+
+  @@index([contentSubmissionId, decidedAt])
+}
+
+model ContentStatusHistory {
+  id                  String            @id @default(cuid())
+  contentSubmissionId String
+  contentSubmission   ContentSubmission @relation(fields: [contentSubmissionId], references: [id], onDelete: Cascade)
+  previousStatus      ContentStatus?
+  newStatus           ContentStatus
+  reason              String?
+  changedAt           DateTime          @default(now())
+  changedByType       ChangedByType
+  changedByIdentifier String?
+
+  @@index([contentSubmissionId, changedAt])
+}
+
+model ContentIdempotency {
+  id                  String            @id @default(cuid())
+  projectId           String
+  idempotencyKey      String
+  requestFingerprint  String
+  contentSubmissionId String
+  contentSubmission   ContentSubmission @relation(fields: [contentSubmissionId], references: [id], onDelete: Cascade)
+  createdAt           DateTime          @default(now())
+  expiresAt           DateTime
+
+  @@unique([projectId, idempotencyKey])
+  @@index([expiresAt])
+}

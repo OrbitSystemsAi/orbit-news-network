@@ -1,0 +1,1 @@
+import { PageHeader } from "@/components/dashboard";import { AdminResource } from "@/components/admin-resource";export default function Page(){return <><PageHeader mode="portal" title="Distribution" description="Levels, rules, destinations, and deliveries"/><AdminResource endpoint="/api/internal/distribution" label="Distribution"/></>}

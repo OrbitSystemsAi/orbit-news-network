@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+src/generated/prisma/
+.env
+.env.*
+!.env.example
+.vercel/
+*.log
+.DS_Store
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+*.key
+*.pem
+*.secret
+tmp-key*
+**/* 2.ts
+**/* 2.tsx

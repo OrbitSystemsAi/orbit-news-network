@@ -1,0 +1,3 @@
+import { PageHeader } from "@/components/dashboard";
+import { DemoBadge, Panel } from "@/components/ui";
+export default async function PlannedPortalPage({params}:{params:Promise<{section:string}>}){const {section}=await params;const title=section.split("-").map(x=>x[0].toUpperCase()+x.slice(1)).join(" ");return <><PageHeader mode="portal" title={title} description="Subscriber project workspace"/><Panel title={title}><div style={{padding:32,textAlign:"center"}}><DemoBadge/><h2 className="display">Planned capability</h2><p className="muted" style={{fontSize:12}}>This extension point is intentionally not operational in the foundation phase.</p></div></Panel></>}

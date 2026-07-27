@@ -1,0 +1,1 @@
+import { PageHeader } from "@/components/dashboard";import { ContentAdmin } from "@/components/content-admin";export default function Page(){return <><PageHeader mode="admin" title="Moderation" description="Deterministic review queue and administrative decisions"/><ContentAdmin moderation/></>}

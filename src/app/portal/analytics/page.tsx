@@ -1,0 +1,1 @@
+import { PageHeader } from "@/components/dashboard";import { AdminResource } from "@/components/admin-resource";export default function Page(){return <><PageHeader mode="portal" title="Analytics" description="Database-backed aggregate publishing metrics"/><AdminResource endpoint="/api/internal/analytics" label="Analytics"/></>}

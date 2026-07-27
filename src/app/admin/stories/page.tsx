@@ -1,0 +1,1 @@
+import { PageHeader } from "@/components/dashboard";import { ContentAdmin } from "@/components/content-admin";export default function Page(){return <><PageHeader mode="admin" title="Stories" description="First-party content submissions and status workflow"/><ContentAdmin/></>}
