@@ -41,5 +41,6 @@ Expected result for every item is `PASS`; record `BLOCKED` or `FAIL` with a non-
 - PASS: `/`, `/developers`, and `/api/v1/health` returned 200.
 - PASS: `/admin` and `/portal` redirected to `/access` without a session.
 - PASS: unauthenticated `GET /api/v1/topics` returned 401.
+- PASS: Git branch `agent/verify-vercel-preview` triggered a protected Preview deployment; authenticated Vercel CLI checks returned 200 for health, 307 for gated admin access, and 401 for unauthenticated topics.
 - PASS: no custom domain or paid service was activated.
-- PENDING: authenticated session, scoped integration-key workflows, publishing lifecycle, preview deployment, and deployed asset/log inspection.
+- PENDING: authenticated application session, scoped integration-key workflows, publishing lifecycle, and deployed asset/log inspection.
