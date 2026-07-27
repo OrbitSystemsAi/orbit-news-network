@@ -2,11 +2,11 @@
 
 ## Intended configuration
 
-The intended Vercel project is `orbit-news-network`, owned by the explicitly verified Vercel account or team and connected to the private GitHub repository. The root is the repository root. Vercel should detect Next.js and use `npm install` plus `npm run build`. The build generates Prisma Client and compiles Next.js; it never migrates or seeds the database.
+The Vercel project is `orbit-news-network`, owned by the verified `orbit-systems-ai` team and connected to the public GitHub repository. The root is the repository root. Vercel detects Next.js and uses `npm install` plus `npm run build`. The build generates Prisma Client and compiles Next.js; it never migrates or seeds the database.
 
-Before linking, authenticate the CLI, list teams/projects, confirm the intended free owner, confirm no project with this name exists, and confirm Vercel can read the private GitHub repository. Do not make the repository public to solve an integration permission problem.
+Before linking, authenticate the CLI, list teams/projects, confirm the intended free owner, confirm no project with this name exists, and confirm Vercel can read the GitHub repository. Repository visibility is an owner decision and must not be changed without explicit approval.
 
-Current status (2026-07-27): the project exists under `orbit-systems-ai`, Next.js was detected, and non-database Production and Preview variables are configured. Git integration is blocked until the Vercel GitHub app is granted access to the new private `OrbitSystemsAi/orbit-news-network` repository. `DATABASE_URL`, `DIRECT_URL`, and `NEXT_PUBLIC_APP_URL` are intentionally unset; no remote deployment has been attempted.
+Current status (2026-07-27): Git integration is connected, required Production and Preview variables are configured, the baseline Neon migration and production seed are applied, and the canonical deployment is `https://orbit-news-network.vercel.app`. The first Vercel production build compiled all 39 routes and passed TypeScript validation.
 
 ## Controlled migration and deployment
 
