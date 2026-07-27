@@ -44,6 +44,8 @@ npm run db:generate
 npm run dev
 ```
 
+ONN always uses local port `3001` to avoid conflicting with Career Pivot on port `3000`. Open `http://localhost:3001`; the access screen is at `http://localhost:3001/access`.
+
 Add real values only to ignored local environment files. Never commit credentials. The application can build without a live database, but database-backed workflows require a valid Neon connection.
 
 Useful commands:
