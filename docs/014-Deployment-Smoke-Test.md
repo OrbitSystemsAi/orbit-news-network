@@ -25,7 +25,22 @@ Use only approved feeds and fake, explicitly labeled publishing content. Confirm
 - Confirm Preview and Production are associated with the intended commit and environment-variable assignments.
 - Confirm Preview did not run migrations or seeds and Production remained unchanged during preview validation.
 - Inspect browser assets and logs for API keys, the administrative secret, database URLs, authorization headers, private bodies, and stack traces.
-- Confirm private APIs emit no wildcard CORS policy and the GitHub repository remains private.
+- Confirm private APIs emit no wildcard CORS policy and repository visibility matches the explicitly approved GitHub policy.
 - Confirm no custom domain or paid service was activated.
 
 Expected result for every item is `PASS`; record `BLOCKED` or `FAIL` with a non-secret explanation and remediation. Deployment is not complete while any required item is unverified.
+
+## 2026-07-27 production record
+
+- Tester: Codex
+- Commit: `456b2f9`
+- Environment: Production
+- URL: `https://orbit-news-network.vercel.app`
+- Database: existing Neon Free project (safe label only)
+- PASS: Vercel build, Prisma Client generation, TypeScript, and 39-route Next.js compilation.
+- PASS: `/`, `/developers`, and `/api/v1/health` returned 200.
+- PASS: `/admin` and `/portal` redirected to `/access` without a session.
+- PASS: unauthenticated `GET /api/v1/topics` returned 401.
+- PASS: Git branch `agent/verify-vercel-preview` triggered a protected Preview deployment; authenticated Vercel CLI checks returned 200 for health, 307 for gated admin access, and 401 for unauthenticated topics.
+- PASS: no custom domain or paid service was activated.
+- PENDING: authenticated application session, scoped integration-key workflows, publishing lifecycle, and deployed asset/log inspection.

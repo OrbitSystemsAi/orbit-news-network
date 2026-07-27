@@ -4,17 +4,17 @@ Orbit News Network (ONN) is the shared news, publishing, distribution, and conte
 
 ## Deployment status
 
-ONN is published to a private GitHub repository and prepared for a **private MVP deployment**, but it is not yet deployed. Neon connectivity, migration application, the Vercel GitHub-app permission, the public URL, and remote deployment smoke tests remain outstanding.
+ONN is deployed as a gated MVP on Vercel. The application repository is public by explicit owner decision so the Orbit Systems AI organization can use Vercel Hobby Git integration; runtime credentials and database connection values remain encrypted and server-only.
 
-- GitHub repository: `OrbitSystemsAi/orbit-news-network` (private, `main`)
-- Vercel project: `orbit-systems-ai/orbit-news-network` (created; Git connection awaiting private-repository permission)
-- Vercel URL: not assigned
-- Neon: expected existing `orbit-news-network` Free project; connection values are not yet configured
-- Cost target: $0/month using GitHub Free, Vercel free private testing where permitted, Neon Free, and open-source dependencies
+- GitHub repository: `OrbitSystemsAi/orbit-news-network` (public, `main`)
+- Vercel project: `orbit-systems-ai/orbit-news-network` (Git connected)
+- Vercel URL: `https://orbit-news-network.vercel.app`
+- Neon: Free project connected; baseline migration and idempotent production seed applied
+- Cost target: $0/month using GitHub Free, Vercel Hobby, Neon Free, and open-source dependencies
 - Access: `/admin/**` and `/portal/**` use a temporary HTTP-only signed access session; this is not full operator or subscriber authentication
 - Custom domain: deliberately out of scope
 
-The private MVP is not ready for public commercial use. It lacks subscriber self-registration, role-based authentication, SSO, independent production/preview databases, paid-grade operational guarantees, and a formal public security review.
+The gated MVP is not ready for public commercial use. It lacks subscriber self-registration, role-based authentication, SSO, independent production/preview databases, paid-grade operational guarantees, and a formal public security review.
 
 ## Implemented platform
 
@@ -98,7 +98,7 @@ Scopes are `news:read`, `news:feedback`, `content:submit`, `content:read`, `cont
 
 1. Complete the secret review and all local verification commands.
 2. Authenticate GitHub CLI and verify access to the exact Orbit Systems AI organization.
-3. Confirm the private repository and remote do not already exist before creating either.
+3. Confirm the intended repository visibility and remote before creating or changing either.
 4. Push the verified default branch without rewriting history.
 5. Authenticate Vercel and verify the exact owner and absence of a conflicting project.
 6. Link GitHub, configure environment variables in Preview and Production, and keep secrets server-only.
