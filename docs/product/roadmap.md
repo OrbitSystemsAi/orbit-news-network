@@ -137,11 +137,11 @@ Consumer applications request curated feeds with private project credentials thr
 
 ### 7. Serve and learn from consumer applications
 
-**Status:** `[~]` Career Pivot local pilot verified; production deployment and sustained monitoring require approval.
+**Status:** `[x]` Career Pivot production pilot verified on August 4, 2026.
 
 Each consumer calls ONN from its backend, presents the returned feed, and forwards user interaction signals.
 
-- [~] Integrate Career Pivot as the first production pilot. The local end-to-end pilot is complete; production configuration and deployment remain.
+- [x] Integrate Career Pivot as the first production pilot.
 - [x] Render external and first-party items with correct provenance and attribution.
 - [x] Forward shown, opened, saved, useful, dismissed, and not-relevant interactions.
 - [x] Provide last-known-good behavior when ONN is temporarily unavailable.
@@ -150,7 +150,7 @@ Each consumer calls ONN from its backend, presents the returned feed, and forwar
 
 **Completion criteria:** At least one production pilot is dependable, measurable, and reusable as the onboarding pattern for additional Orbit applications.
 
-**Local verification note:** Career Pivot now calls ONN only through authenticated server routes, derives an opaque user ID, maps bounded profile signals to shared taxonomy, displays normalized attributed items, and forwards interactions. Desktop and mobile layouts, empty state, entity normalization, Save state, and console health were checked in the rendered application. With ONN stopped, Career Pivot served and labeled its last-known-good edition; service recovered after restart. ONN recorded shown and saved interactions for the isolated QA identity. Production environment variables, deployment, sustained monitoring, and a second live consumer require explicit approval before this stage can be marked complete.
+**Production verification note:** Career Pivot calls ONN only through authenticated server routes, derives an opaque user ID, maps bounded profile signals to shared taxonomy, displays normalized attributed items, and forwards interactions. Desktop and mobile layouts, empty state, entity normalization, Save state, and console health were checked in the rendered application. With ONN stopped, Career Pivot served and labeled its last-known-good edition; service recovered after restart. The production Vercel project uses a free durable Neon database, production-scoped ONN credentials, and a production-only Vercel Trusted Source rule. A live production request returned four normalized external-news items and a useful interaction returned `201`; ONN recorded key usage and two isolated QA feedback events. The QA account was removed and superseded production credentials were revoked after verification. Sustained dashboards, alerting, and a second live consumer remain follow-on improvements rather than blockers to this stage's one-pilot completion criterion.
 
 ---
 
