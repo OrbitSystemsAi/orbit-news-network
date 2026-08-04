@@ -28,3 +28,4 @@ Orbit News Network (ONN) is shared news, publishing, curation, and distribution 
 ## Operations
 
 - [External source review runbook](operations/source-review.md) — evidence, approval, activation, verification, and re-review requirements for RSS and Atom sources.
+- [Initial external source candidate review](operations/source-candidate-review.md) — non-storing parse evidence, policy findings, holds, and the proposed first approval batch.
