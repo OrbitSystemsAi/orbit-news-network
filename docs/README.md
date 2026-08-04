@@ -24,3 +24,7 @@ Orbit News Network (ONN) is shared news, publishing, curation, and distribution 
 - [Deployment smoke test](014-Deployment-Smoke-Test.md)
 - [Shared taxonomy](015-Taxonomy.md)
 - [Unified Feed API](016-Unified-Feed-API.md)
+
+## Operations
+
+- [External source review runbook](operations/source-review.md) — evidence, approval, activation, verification, and re-review requirements for RSS and Atom sources.

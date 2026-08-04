@@ -184,32 +184,32 @@ These steps are ordered dependencies. Work may overlap where safe, but a later p
 
 ### 3. Establish the taxonomy
 
-**Status:** `[~]`
+**Status:** `[x]` Shared hierarchical taxonomy and governance verified on August 4, 2026.
 
-- [ ] Define category, subcategory, topic, tag, and entity boundaries.
-- [ ] Define stable slugs, descriptions, relationships, aliases, and lifecycle states.
-- [ ] Add project permissions and source mappings.
-- [ ] Avoid application-specific taxonomy hardcoding.
+- [x] Define category, subcategory, topic, tag, and entity boundaries.
+- [x] Define stable slugs, descriptions, relationships, aliases, and lifecycle states.
+- [x] Add project permissions and source mappings.
+- [x] Avoid application-specific taxonomy hardcoding.
 
 **Complete when:** Every active classification has a clear, non-ambiguous meaning and governance process.
 
 ### 4. Build the source-review process
 
-**Status:** `[ ]`
+**Status:** `[x]` Activation controls, audit fields, and operator runbook verified on August 4, 2026.
 
-- [ ] Record feed ownership, publisher identity, terms, attribution, permitted fields, restrictions, reviewer, and review dates.
-- [ ] Separate safe test collection from activation.
-- [ ] Require administrative approval before production activation.
+- [x] Record feed ownership, publisher identity, terms, attribution, permitted fields, restrictions, reviewer, and review dates.
+- [x] Separate safe test collection from activation.
+- [x] Require administrative approval before production activation.
 
 **Complete when:** Every active source has an auditable approval record.
 
 ### 5. Add initial production sources
 
-**Status:** `[ ]`
+**Status:** `[~]` One reviewed NASA source is active; broader priority-taxonomy coverage remains.
 
-- [ ] Begin with two to five strong sources per priority taxonomy area.
-- [ ] Test parsing, dates, URLs, descriptions, authors, images, attribution, and duplicates.
-- [ ] Verify that one source failure does not stop others.
+- [~] Begin with two to five strong sources per priority taxonomy area. The current production catalog has one active NASA source; NASA/JPL CNEOS is paused.
+- [x] Test parsing, dates, URLs, descriptions, authors, images, attribution, and duplicates for the current reviewed catalog.
+- [x] Verify that one source failure does not stop others.
 
 **Complete when:** Approved sources refresh consistently and store correctly normalized records.
 
@@ -217,10 +217,10 @@ These steps are ordered dependencies. Work may overlap where safe, but a later p
 
 **Status:** `[~]`
 
-- [ ] Block localhost, private networks, metadata services, unsafe protocols, and unsafe redirect destinations.
-- [ ] Limit response size, redirects, content types, and processing time.
-- [ ] Sanitize stored text and bound logged errors.
-- [ ] Add failure thresholds, warnings, automatic pausing, and controlled reactivation.
+- [x] Block localhost, private networks, metadata services, unsafe protocols, and unsafe redirect destinations.
+- [x] Limit response size, redirects, content types, and processing time.
+- [x] Sanitize stored text and bound logged errors.
+- [~] Add failure thresholds, warnings, automatic pausing, and controlled reactivation. Failure counts and manual pause/reactivation exist; automatic thresholds remain.
 
 **Complete when:** A malicious or broken feed cannot access internal services, consume unbounded resources, or expose sensitive information.
 
@@ -228,42 +228,42 @@ These steps are ordered dependencies. Work may overlap where safe, but a later p
 
 **Status:** `[~]`
 
-- [ ] Add fixtures for tracking parameters, fragments, slashes, protocol changes, identifiers, title changes, syndication, and republishing.
+- [~] Add fixtures for tracking parameters, fragments, slashes, protocol changes, identifiers, title changes, syndication, and republishing. Core URL and fingerprint cases exist; the full matrix remains.
 - [ ] Define update-versus-new-item behavior.
-- [ ] Preserve stable ONN IDs and provenance.
+- [x] Preserve stable ONN IDs and provenance.
 
 **Complete when:** Repeat refreshes are idempotent and duplicate stories rarely reach consumers.
 
 ### 8. Improve curation quality
 
-**Status:** `[~]`
+**Status:** `[x]` Reviewed evaluation sets and explainable diversity-aware ranking verified on August 4, 2026.
 
-- [ ] Build reviewed relevance evaluation sets.
-- [ ] Tune thresholds, weights, freshness, mappings, and source quality.
-- [ ] Add source and story diversity.
-- [ ] Reject weak results rather than filling quotas.
+- [x] Build reviewed relevance evaluation sets.
+- [x] Tune thresholds, weights, freshness, mappings, and source quality.
+- [x] Add source and story diversity.
+- [x] Reject weak results rather than filling quotas.
 
 **Complete when:** Evaluation sets produce consistently acceptable rankings.
 
 ### 9. Make feedback affect future results
 
-**Status:** `[~]` Interaction storage exists; historical personalization remains.
+**Status:** `[~]` Bounded, decayed personalization is active; preference reset remains.
 
-- [ ] Aggregate project-scoped user preferences.
-- [ ] Apply bounded positive and negative signals.
-- [ ] Add time decay and preference reset operations.
-- [ ] Keep explanations understandable and avoid unnecessary identity data.
+- [x] Aggregate project-scoped user preferences.
+- [x] Apply bounded positive and negative signals.
+- [~] Add time decay and preference reset operations. Time decay is active; reset operations remain.
+- [x] Keep explanations understandable and avoid unnecessary identity data.
 
 **Complete when:** Repeated feedback creates measurable, bounded, explainable ranking changes.
 
 ### 10. Add caching and resilience
 
-**Status:** `[~]`
+**Status:** `[x]` Unified-feed caching, partial results, and consumer last-known-good behavior verified on August 4, 2026.
 
-- [ ] Define database, request, and consumer last-known-good caching.
-- [ ] Return eligible cached content when refreshes fail.
-- [ ] Define stale, partial, empty, and unavailable states.
-- [ ] Ensure individual publisher failures do not make the feed unavailable.
+- [x] Define database, request, and consumer last-known-good caching.
+- [x] Return eligible cached content when refreshes fail.
+- [x] Define stale, partial, empty, and unavailable states.
+- [x] Ensure individual publisher failures do not make the feed unavailable.
 
 **Complete when:** Temporary source or ONN failures do not erase the consuming application's news surface.
 
@@ -279,11 +279,11 @@ These steps are ordered dependencies. Work may overlap where safe, but a later p
 
 ### 12. Add rate limits and quotas
 
-**Status:** `[ ]`
+**Status:** `[x]` Project-scoped feed and feedback controls verified on August 4, 2026.
 
-- [ ] Define per-project and per-environment request, burst, daily, payload, topic, item, and feedback limits.
-- [ ] Return stable `429` errors and retry guidance.
-- [ ] Prevent authenticated callers from forcing excessive refresh or cache fragmentation.
+- [x] Define per-project and per-environment request, burst, daily, payload, topic, item, and feedback limits.
+- [x] Return stable `429` errors and retry guidance.
+- [x] Prevent authenticated callers from forcing excessive refresh or cache fragmentation.
 
 **Complete when:** One project cannot degrade service for other consumers.
 
@@ -310,11 +310,11 @@ These steps are ordered dependencies. Work may overlap where safe, but a later p
 
 ### 15. Build contract and end-to-end testing
 
-**Status:** `[~]`
+**Status:** `[x]` Contract, isolation, failure-state, and production consumer checks verified on August 4, 2026.
 
-- [ ] Test valid, invalid, revoked, incorrectly scoped, and unauthorized requests.
-- [ ] Test exclusions, maximums, refresh outcomes, deduplication, distribution, empty results, feedback, isolation, and safe errors.
-- [ ] Test one real consumer server against a non-production ONN environment.
+- [x] Test valid, invalid, revoked, incorrectly scoped, and unauthorized requests.
+- [x] Test exclusions, maximums, refresh outcomes, deduplication, distribution, empty results, feedback, isolation, and safe errors.
+- [x] Test one real consumer server against ONN. Career Pivot was verified locally and in production.
 
 **Complete when:** ONN changes cannot silently break consumer integrations.
 
@@ -329,14 +329,14 @@ These steps are ordered dependencies. Work may overlap where safe, but a later p
 
 ### 17. Pilot with one consuming application
 
-**Status:** `[ ]`
+**Status:** `[x]` Career Pivot production pilot verified on August 4, 2026.
 
-- [ ] Create Career Pivot's production project and narrowly scoped taxonomy access.
-- [ ] Activate a small approved source catalog.
-- [ ] Issue its production feed credential.
-- [ ] Build its server-side proxy, feed presentation, feedback forwarding, and fallback behavior.
-- [ ] Monitor and manually review relevance, latency, diversity, empty feeds, and errors.
-- [ ] Document reusable lessons and prove that a second application needs no Career Pivot-specific ONN changes.
+- [x] Create Career Pivot's production project and narrowly scoped taxonomy access.
+- [x] Activate a small approved source catalog.
+- [x] Issue its production feed credential.
+- [x] Build its server-side proxy, feed presentation, feedback forwarding, and fallback behavior.
+- [x] Monitor and manually review relevance, latency, diversity, empty feeds, and errors during production verification.
+- [~] Document reusable lessons and prove that a second application needs no Career Pivot-specific ONN changes. The neutral onboarding pattern is documented; a second live consumer remains follow-on work.
 
 **Complete when:** The pilot is dependable and provides a reusable onboarding pattern for other Orbit applications.
 
@@ -362,4 +362,4 @@ Step 17: complete and evaluate the Career Pivot production pilot while preservin
 
 ## Immediate next action
 
-Begin with Step 1 and Step 2: freeze the production feed contract and refactor the unified-feed endpoint around a dedicated service. The taxonomy design in Step 3 should proceed alongside the contract work because category and subcategory semantics affect the request and response model.
+Use the source-review runbook to nominate and review the first small production-source batch for careers, employment, business, technology, and education. No source should be activated until ownership, terms, attribution, permitted fields, restrictions, taxonomy fit, and safe parsing have been reviewed. In parallel, complete Step 6 automatic failure thresholds and Step 7's normalization fixture matrix before scaling the catalog.

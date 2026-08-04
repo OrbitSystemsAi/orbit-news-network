@@ -8,6 +8,8 @@
 
 New sources enter `PENDING_REVIEW`. Testing fetches and parses a safe summary but does not activate the source. Activation requires a durable record confirming that the feed is official or authorized, publisher terms were reviewed, and attribution requirements were captured. ONN records the reviewer, review time, editorial notes, and a policy re-review date six months later. Sources may be paused or rejected at any time. No external feed URL is seeded automatically.
 
+The authoritative operator checklist and decision process are maintained in the [External Source Review Runbook](operations/source-review.md).
+
 ## Normalization
 
 RSS and Atom provider fields map to external ID, title, source-provided description, canonical URL, author, optional external image URL, publication timestamp, and minimal format metadata. Zod rejects malformed entries without failing the remaining feed. Missing or invalid dates use collection time.
