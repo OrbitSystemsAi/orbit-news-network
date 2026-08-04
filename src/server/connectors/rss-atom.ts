@@ -1,5 +1,9 @@
 import { XMLParser } from "fast-xml-parser";
 import { collectedArticleSchema, type CollectedArticle, type FeedSourceConfiguration, type NewsSourceConnector } from "./news-source";
+import { assertSafeFeedUrl } from "./feed-safety";
+
+const MAX_FEED_BYTES = 2_000_000;
+const MAX_REDIRECTS = 3;
 
 const array = <T>(value: T | T[] | undefined): T[] => value === undefined ? [] : Array.isArray(value) ? value : [value];
 const text = (value: unknown): string => {
@@ -28,6 +32,7 @@ export function normalizeFeedXml(xml: string, collectedAt = new Date()): Collect
   const document = parser.parse(xml) as Record<string, any>;
   const rssItems = array(document?.rss?.channel?.item);
   const atomItems = array(document?.feed?.entry);
+  if (!document?.rss?.channel && !document?.feed) throw new Error("Document is not an RSS or Atom feed.");
   const records = rssItems.length ? rssItems.map((item:any) => ({
     externalId: text(item.guid) || null, title:text(item.title), description:text(item.description ?? item["content:encoded"]),
     canonicalUrl:link(item.link), author:text(item.author ?? item["dc:creator"]) || null,
@@ -47,12 +52,26 @@ export function normalizeFeedXml(xml: string, collectedAt = new Date()): Collect
 export class RssAtomConnector implements NewsSourceConnector {
   async collect(source: FeedSourceConfiguration) {
     const timeout = Number(process.env.FEED_REQUEST_TIMEOUT_MS ?? 10000);
-    const response = await fetch(source.feedUrl, {
-      signal: AbortSignal.timeout(timeout),
-      headers: { "user-agent":"Orbit-News-Network/0.2 (+https://orbit.systems; RSS/Atom metadata only)", accept:"application/rss+xml, application/atom+xml, application/xml, text/xml" },
-      redirect:"follow",
-    });
+    let url = source.feedUrl;
+    let response: Response | undefined;
+    for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects++) {
+      await assertSafeFeedUrl(url);
+      response = await fetch(url, {
+        signal: AbortSignal.timeout(timeout),
+        headers: { "user-agent":"Orbit-News-Network/0.2 (+https://orbit.systems; RSS/Atom metadata only)", accept:"application/rss+xml, application/atom+xml, application/xml, text/xml" },
+        redirect:"manual",
+      });
+      if (![301, 302, 303, 307, 308].includes(response.status)) break;
+      const location = response.headers.get("location");
+      if (!location || redirects === MAX_REDIRECTS) throw new Error("Feed redirected too many times.");
+      url = new URL(location, url).toString();
+    }
+    if (!response) throw new Error("Feed request did not return a response.");
     if (!response.ok) throw new Error(`Feed request failed with status ${response.status}.`);
-    return normalizeFeedXml(await response.text());
+    const declaredLength = Number(response.headers.get("content-length") ?? 0);
+    if (declaredLength > MAX_FEED_BYTES) throw new Error("Feed response is too large.");
+    const xml = await response.text();
+    if (Buffer.byteLength(xml, "utf8") > MAX_FEED_BYTES) throw new Error("Feed response is too large.");
+    return normalizeFeedXml(xml);
   }
 }

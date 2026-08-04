@@ -1,0 +1,16 @@
+{
+  "reviewedAt": "2026-08-04",
+  "reviewedBy": "ONN Step 5 verification",
+  "cases": [
+    {
+      "name": "career signal outranks unrelated freshness",
+      "requested": [{ "slug": "careers", "weight": 10, "source": "career" }],
+      "expectedFirst": "career-match"
+    },
+    {
+      "name": "negative feedback remains bounded",
+      "requested": [{ "slug": "technology", "weight": 8, "source": "interest" }],
+      "expectedFirst": "technology-match"
+    }
+  ]
+}

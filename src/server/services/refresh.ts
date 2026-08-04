@@ -36,8 +36,10 @@ export async function refreshRelevantSources(topicSlugs:string[], projectRefresh
         const exists=await database.externalArticle.findFirst({where:{OR:[{canonicalUrl:url},{contentFingerprint:fingerprint},...(item.externalId?[{feedSourceId:source.id,externalIdentifier:item.externalId}]:[])]}});
         if(exists){duplicates++;sourceDuplicates++;continue}
         const keyword=assignKeywordTopics(item.title,item.description);
-        const mappings=[...source.topics.map(m=>({topicId:m.topicId,score:m.weight,assignmentSource:"FEED_MAPPING" as const})),
-          ...keyword.flatMap(k=>{const match=source.topics.find(m=>m.topic.slug===k.slug);return match?[{topicId:match.topicId,score:k.score,assignmentSource:"KEYWORD_RULE" as const}]:[]})];
+        const mappings=source.topics.map(mapping=>{
+          const keywordMatch=keyword.find(candidate=>candidate.slug===mapping.topic.slug);
+          return {topicId:mapping.topicId,score:Math.max(mapping.weight,keywordMatch?.score??0),assignmentSource:"FEED_MAPPING" as const};
+        });
         await database.externalArticle.create({data:{feedSourceId:source.id,externalIdentifier:item.externalId,canonicalUrl:url,title:item.title,description:item.description,author:item.author,imageUrl:item.imageUrl,publishedAt:item.publishedAt,contentFingerprint:fingerprint,sourceMetadata:item.sourceMetadata as Prisma.InputJsonValue,topics:{create:mappings}}});
         added++;sourceAdded++;
       }

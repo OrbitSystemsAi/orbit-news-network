@@ -3,6 +3,7 @@ import { serverEnvironment } from "@/lib/environment/server";
 import { authenticateBearer } from "./authentication";
 import { timingSafeEqual } from "node:crypto";
 import { accessCookieName, cookieValue, verifyAccessSession } from "@/lib/security/access-session";
+import { getOnnIdentity, isOnnAdministrator } from "@/lib/auth/authorization";
 
 export async function authenticateProject(request: Request, requiredScope?: string) {
   if (!serverEnvironment.API_KEY_HASH_SECRET) return null;
@@ -16,7 +17,10 @@ export async function authenticateProject(request: Request, requiredScope?: stri
   }, serverEnvironment.API_KEY_HASH_SECRET, inferredScope);
 }
 
-export function isAdminRequest(request: Request) {
+export async function isAdminRequest(request: Request) {
+  const identity = await getOnnIdentity();
+  if (isOnnAdministrator(identity?.email)) return true;
+
   const expected = serverEnvironment.ADMIN_ACCESS_KEY;
   if (verifyAccessSession(cookieValue(request.headers.get("cookie"), accessCookieName), expected)) return true;
   const supplied = request.headers.get("x-onn-admin-key");

@@ -5,13 +5,15 @@ export const requestedTopicSchema = z.object({
   weight: z.number().min(0).max(10),
   source: z.enum(["career","interest","group","network"]).optional(),
 });
+const requestedClassificationSchema = requestedTopicSchema.extend({ slug: z.string().min(2).max(100).regex(/^[a-z0-9]+(?:[ -][a-z0-9]+)*$/) });
 export const relevantNewsRequestSchema = z.object({
   externalUserId: z.string().min(1).max(200),
-  topics: z.array(requestedTopicSchema).min(1).max(30),
+  topics: z.array(requestedTopicSchema).max(30).default([]),
+  classifications: z.array(requestedClassificationSchema).max(20).default([]),
   excludedTopics: z.array(z.string().min(2).max(80)).max(30).default([]),
   excludeArticleIds: z.array(z.string().min(1).max(100)).max(100).default([]),
   maximumItems: z.number().int().min(1).max(100).optional(),
-});
+}).superRefine((value, context) => { if (!value.topics.length && !value.classifications.length) context.addIssue({ code: "custom", path: ["topics"], message: "Provide at least one topic or classification." }); });
 export const feedbackRequestSchema = z.object({
   externalUserId: z.string().min(1).max(200),
   articleId: z.string().min(1).max(100),

@@ -1,5 +1,5 @@
 import Link from "next/link";import {BookOpen,Braces,KeyRound,Network,ShieldCheck} from "lucide-react";import {Brand} from "@/components/brand";
-const scopes=["news:read","news:feedback","content:submit","content:read","content:feedback","publications:read","feed:read","analytics:read"];
+const scopes=["news:read","news:feedback","content:submit","content:read","content:feedback","publications:read","feed:read","feed:feedback","analytics:read"];
 const submission=`POST /api/v1/content/submissions
 Authorization: Bearer onn_dev_example_not_real
 Idempotency-Key: request-123

@@ -11,7 +11,7 @@ ONN is deployed as a gated MVP on Vercel. The application repository is public b
 - Vercel URL: `https://orbit-news-network.vercel.app`
 - Neon: Free project connected; baseline migration and idempotent production seed applied
 - Cost target: $0/month using GitHub Free, Vercel Hobby, Neon Free, and open-source dependencies
-- Access: `/admin/**` and `/portal/**` use a temporary HTTP-only signed access session; this is not full operator or subscriber authentication
+- Access: `/admin/**` and `/portal/**` support individual Neon Auth operator sessions with a server-only ONN administrator allowlist; the shared-key gate remains only as a setup fallback until Neon Auth is configured
 - Custom domain: deliberately out of scope
 
 The gated MVP is not ready for public commercial use. It lacks subscriber self-registration, role-based authentication, SSO, independent production/preview databases, paid-grade operational guarantees, and a formal public security review.
@@ -69,7 +69,7 @@ npm run db:seed:production
 
 ## Environment and Neon
 
-`DATABASE_URL` is the pooled runtime connection. `DIRECT_URL` is preferred by Prisma CLI migration commands through `prisma.config.ts`. The remaining required secrets are `ADMIN_ACCESS_KEY` and `API_KEY_HASH_SECRET`. `NEXT_PUBLIC_APP_URL` is the only public setting and must contain the deployed application URL.
+`DATABASE_URL` is the pooled runtime connection. `DIRECT_URL` is preferred by Prisma CLI migration commands through `prisma.config.ts`. Neon Auth requires `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, and at least one email in `ONN_ADMIN_EMAILS`. `API_KEY_HASH_SECRET` remains required for integration API keys. `ADMIN_ACCESS_KEY` is a temporary migration fallback and approved server-tool credential. `NEXT_PUBLIC_APP_URL` is the only public setting and must contain the deployed application URL.
 
 Preview and production may temporarily share the existing Neon Free project for this private MVP. This is a documented cost compromise, not a recommended long-term production architecture. Preview builds must never migrate or seed the shared database automatically.
 
@@ -77,7 +77,7 @@ See [Environment Management](docs/012-Environment-Management.md) for classificat
 
 ## Access and API model
 
-The public landing page, `/developers`, `/access`, and `/api/v1/health` remain accessible. `/admin/**` and `/portal/**` require the temporary private-MVP gate. A successful server-side key comparison creates a signed, `HttpOnly`, `SameSite=Strict`, production-secure cookie. The administrative key is not stored in browser JavaScript, a URL, or the cookie.
+The public landing page, `/developers`, `/access/**`, and `/api/v1/health` remain accessible. When configured, `/admin/**` and `/portal/**` require a Neon Auth session whose email is present in the server-only `ONN_ADMIN_EMAILS` allowlist. Authentication alone never grants ONN access. When Neon Auth is not configured, the temporary shared-key gate remains available so an environment is not stranded during migration.
 
 Integration APIs require server-to-server project bearer keys and capability scopes. Browsers must not receive project API keys. Cross-origin access is denied by omission: private APIs do not emit permissive CORS headers.
 
@@ -94,7 +94,7 @@ Implemented publishing endpoints include:
 - `POST /api/v1/content/feedback`
 - `POST /api/v1/feed/feedback`
 
-Scopes are `news:read`, `news:feedback`, `content:submit`, `content:read`, `content:feedback`, `publications:read`, `feed:read`, and `analytics:read`.
+Scopes are `news:read`, `news:feedback`, `content:submit`, `content:read`, `content:feedback`, `publications:read`, `feed:read`, `feed:feedback`, and `analytics:read`.
 
 ## Safe deployment sequence
 

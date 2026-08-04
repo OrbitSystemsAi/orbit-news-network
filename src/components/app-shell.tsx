@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Activity, AlertTriangle, BarChart3, BookOpen, Boxes, Braces, CircleUserRound, FileKey, FolderKanban, GitBranch, Home, Menu, Network, Newspaper, Rss, Settings, ShieldCheck, Users, X } from "lucide-react";
 import { Brand } from "./brand";
+import { SignOutButton } from "./sign-out-button";
 
 const adminItems = [
   ["Overview","/admin",Home],["Sources","/admin/sources",Rss],["Stories","/admin/stories",Newspaper],["Publications","/admin/publications",BookOpen],["Distribution","/admin/distribution",Network],["Moderation","/admin/moderation",ShieldCheck],["Topics","/admin/topics",Boxes],
@@ -17,7 +18,7 @@ const portalItems = [
   ["Alerts","/portal/alerts",AlertTriangle],["Documentation","/developers",BookOpen],["Settings","/portal/settings",Settings],
 ] as const;
 
-export function AppShell({ mode, children }: { mode: "admin" | "portal"; children: React.ReactNode }) {
+export function AppShell({ mode, children, identity }: { mode: "admin" | "portal"; children: React.ReactNode; identity?: { name?: string | null; email?: string | null } | null }) {
   const [open,setOpen]=useState(false);
   const pathname=usePathname();
   const items=mode==="admin"?adminItems:portalItems;
@@ -32,7 +33,8 @@ export function AppShell({ mode, children }: { mode: "admin" | "portal"; childre
       </nav>
       <div style={{marginTop:"auto",border:"1px solid #1e3347",borderRadius:8,padding:10,display:"flex",alignItems:"center",gap:9}}>
         <div style={{width:28,height:28,borderRadius:30,display:"grid",placeItems:"center",background:"#8db9ff",color:"#071018",fontSize:10,fontWeight:800}}>{mode==="admin"?"AS":"AC"}</div>
-        <div><div style={{fontSize:10}}>{mode==="admin"?"Admin User":"Acme Corporation"}</div><div className="muted" style={{fontSize:8}}>{mode==="admin"?"Super Administrator":"Enterprise Plan"}</div></div>
+        <div style={{minWidth:0,flex:1}}><div style={{fontSize:10,overflow:"hidden",textOverflow:"ellipsis"}}>{identity?.name || "ONN Administrator"}</div><div className="muted" style={{fontSize:8,overflow:"hidden",textOverflow:"ellipsis"}}>{identity?.email || "Migration session"}</div></div>
+        {identity ? <SignOutButton/> : null}
       </div>
     </aside>
     <main className="app-main" style={{gridColumn:"2"}}>{children}</main>

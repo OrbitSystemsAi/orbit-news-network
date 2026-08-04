@@ -1,5 +1,110 @@
 import Link from "next/link";
 import { ArrowRight, Braces, RadioTower, ShieldCheck } from "lucide-react";
 import { Brand } from "@/components/brand";
-export default function HomePage(){return <main><header style={{height:76,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 max(24px,6vw)",borderBottom:"1px solid rgba(35,56,79,.7)"}}><Brand/><nav style={{display:"flex",alignItems:"center",gap:22,fontSize:11}}><Link href="/developers">Developers</Link><Link href="/portal">Subscriber Portal</Link><Link href="/admin" style={{padding:"9px 13px",border:"1px solid #2a4862",borderRadius:6}}>Admin</Link></nav></header><section style={{maxWidth:1200,margin:"0 auto",padding:"100px 24px 70px",display:"grid",gridTemplateColumns:"1.03fr .97fr",alignItems:"center",gap:"8vw"}}><div><h1 className="display" style={{fontSize:"clamp(44px,6vw,76px)",lineHeight:.98,letterSpacing:"-.06em",margin:0}}>The intelligence and publishing network behind every Orbit application.</h1><p className="muted" style={{fontSize:17,lineHeight:1.7,maxWidth:620,margin:"27px 0"}}>ONN is centralized, API-first infrastructure for collecting, normalizing, distributing, and measuring external news and first-party Orbit content.</p><div style={{display:"flex",gap:10,flexWrap:"wrap"}}><Link href="/developers" style={{display:"inline-flex",alignItems:"center",gap:7,padding:"12px 16px",borderRadius:6,background:"#0b84e5",fontSize:12,fontWeight:650}}>Explore the API <ArrowRight size={14}/></Link><Link href="/portal" style={{padding:"12px 16px",borderRadius:6,border:"1px solid #29465f",fontSize:12}}>Open portal</Link></div><p style={{fontSize:10,color:"#72d990",marginTop:22}}>● Ad-free · free-MVP foundation · under active development</p></div><NetworkDiagram/></section><section style={{borderTop:"1px solid #1b3042",borderBottom:"1px solid #1b3042",background:"#09141e"}}><div style={{maxWidth:1200,margin:"0 auto",padding:"38px 24px",display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:32}}>{[[RadioTower,"External + first-party","Current news and content submitted by Orbit applications."],[Braces,"API-first","Every meaningful platform capability begins at a versioned boundary."],[ShieldCheck,"Project scoped","Multi-tenant isolation and server-to-server credentials by design."]].map(([Icon,title,body])=><article key={String(title)} style={{display:"grid",gridTemplateColumns:"32px 1fr",gap:12}}><Icon color="#38bdf8" size={21}/><div><h2 className="display" style={{fontSize:15,margin:"0 0 7px"}}>{title as string}</h2><p className="muted" style={{fontSize:11,lineHeight:1.7,margin:0}}>{body as string}</p></div></article>)}</div></section></main>}
-function NetworkDiagram(){return <div className="panel" style={{aspectRatio:"1.2",position:"relative",overflow:"hidden",background:"radial-gradient(circle at center,#102b42,#09131d 64%)"}}><svg viewBox="0 0 600 500" style={{width:"100%",height:"100%"}}><defs><linearGradient id="g"><stop stopColor="#38bdf8"/><stop offset="1" stopColor="#4a90e2"/></linearGradient></defs>{[[300,250,120,90],[300,250,475,100],[300,250,500,330],[300,250,120,390],[300,250,300,455]].map((l,i)=><line key={i} x1={l[0]} y1={l[1]} x2={l[2]} y2={l[3]} stroke="#31506b" strokeWidth="2"/>) }<circle cx="300" cy="250" r="69" fill="#0b1b29" stroke="url(#g)" strokeWidth="2"/><text x="300" y="243" textAnchor="middle" fill="#fff" fontSize="34" fontWeight="700">ONN</text><text x="300" y="271" textAnchor="middle" fill="#90a4b8" fontSize="11">PLATFORM CORE</text>{[[120,90,"Career Pivot"],[475,100,"Social Encounter"],[500,330,"APD"],[120,390,"Orbit CRM"],[300,455,"Future Apps"]].map(([x,y,t])=><g key={String(t)}><circle cx={x} cy={y} r="43" fill="#0b1824" stroke="#2e526d"/><text x={x} y={Number(y)+4} textAnchor="middle" fill="#cfe1ed" fontSize="11">{t}</text></g>)}</svg></div>}
+
+const principles = [
+  {
+    icon: RadioTower,
+    title: "External + first-party",
+    body: "Current news and content submitted by Orbit applications.",
+  },
+  {
+    icon: Braces,
+    title: "API-first",
+    body: "Every meaningful platform capability begins at a versioned boundary.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Project scoped",
+    body: "Multi-tenant isolation and server-to-server credentials by design.",
+  },
+];
+
+export default function HomePage() {
+  return (
+    <main className="landing-page">
+      <header className="landing-header">
+        <Brand />
+        <nav className="landing-nav" aria-label="Primary navigation">
+          <Link href="/developers">Developers</Link>
+          <Link href="/portal">Subscriber Portal</Link>
+          <Link className="landing-nav-admin" href="/admin">Admin</Link>
+        </nav>
+      </header>
+
+      <section className="landing-hero">
+        <div className="landing-intro">
+          <h1 className="display">
+            The intelligence and publishing network behind every Orbit application.
+          </h1>
+          <p className="muted">
+            ONN is centralized, API-first infrastructure for collecting, normalizing,
+            distributing, and measuring external news and first-party Orbit content.
+          </p>
+          <div className="landing-actions">
+            <Link className="landing-primary-action" href="/developers">
+              Explore the API <ArrowRight size={14} aria-hidden="true" />
+            </Link>
+            <Link className="landing-secondary-action" href="/portal">Open portal</Link>
+          </div>
+          <p className="landing-status">
+            <span aria-hidden="true">●</span> Ad-free · free-MVP foundation · under active development
+          </p>
+        </div>
+        <NetworkDiagram />
+      </section>
+
+      <section className="landing-principles" aria-label="Platform principles">
+        <div className="landing-principles-inner">
+          {principles.map(({ icon: Icon, title, body }) => (
+            <article className="landing-principle" key={title}>
+              <Icon color="#38bdf8" size={21} aria-hidden="true" />
+              <div>
+                <h2 className="display">{title}</h2>
+                <p className="muted">{body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function NetworkDiagram() {
+  const connections = [
+    [300, 250, 120, 90],
+    [300, 250, 475, 100],
+    [300, 250, 500, 330],
+    [300, 250, 120, 390],
+    [300, 250, 300, 455],
+  ];
+  const applications: Array<[number, number, string]> = [
+    [120, 90, "Career Pivot"],
+    [475, 100, "Social Encounter"],
+    [500, 330, "APD"],
+    [120, 390, "Orbit CRM"],
+    [300, 455, "Future Apps"],
+  ];
+
+  return (
+    <div className="landing-network">
+      <svg viewBox="0 0 600 500" role="img" aria-labelledby="network-title network-description">
+        <title id="network-title">Orbit News Network platform</title>
+        <desc id="network-description">ONN connects and serves multiple current and future Orbit applications.</desc>
+        {connections.map(([x1, y1, x2, y2], index) => (
+          <line key={index} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#31506b" strokeWidth="2" />
+        ))}
+        <circle cx="300" cy="250" r="69" fill="#0b1b29" />
+        <text x="300" y="243" textAnchor="middle" fill="#fff" fontSize="34" fontWeight="700">ONN</text>
+        <text x="300" y="271" textAnchor="middle" fill="#90a4b8" fontSize="11">PLATFORM CORE</text>
+        {applications.map(([x, y, label]) => (
+          <g key={label}>
+            <circle cx={x} cy={y} r="43" fill="#0b1824" />
+            <text x={x} y={y + 4} textAnchor="middle" fill="#cfe1ed" fontSize="11">{label}</text>
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}

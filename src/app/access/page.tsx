@@ -1,22 +1,21 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { isNeonAuthConfigured } from "@/lib/auth/server";
 
 export default async function AccessPage({ searchParams }: { searchParams: Promise<{ returnTo?: string; error?: string }> }) {
+  if (isNeonAuthConfigured()) redirect("/access/sign-in");
+
   const query = await searchParams;
   const returnTo = query.returnTo?.startsWith("/") && !query.returnTo.startsWith("//") ? query.returnTo : "/portal";
-  return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",background:"#050b11",color:"#eef6ff",padding:24}}>
-    <form method="post" action="/api/internal/session" style={{width:"min(420px,100%)",padding:28,border:"1px solid #29445d",borderRadius:10,background:"#09131d"}}>
-      <p style={{fontSize:11,letterSpacing:1.5,color:"#70b7ff"}}>ORBIT NEWS NETWORK</p>
-      <h1 style={{fontSize:24}}>Private MVP access</h1>
-      <p style={{color:"#93a8bb",lineHeight:1.6}}>Administrative and subscriber surfaces require temporary operator access.</p>
-      <label style={{display:"grid",gap:7,fontSize:12}}>Administrative access key
-        <input name="accessKey" type="password" required autoComplete="current-password" style={{padding:11,background:"#050b11",border:"1px solid #35516a",borderRadius:6,color:"white"}} />
-      </label>
-      <input type="hidden" name="returnTo" value={returnTo} />
-      {query.error && <p role="alert" style={{color:"#ff9c9c",fontSize:12}}>Access was not accepted.</p>}
-      <div style={{marginTop:18,display:"flex",alignItems:"center",gap:12}}>
-        <button type="submit" style={{padding:"10px 14px",background:"#176cc0",color:"white",border:0,borderRadius:6}}>Continue</button>
-        <Link href="/" style={{padding:"9px 14px",color:"#b8c8d8",border:"1px solid #35516a",borderRadius:6,textDecoration:"none"}}>Cancel</Link>
-      </div>
-    </form>
-  </main>;
+  return <main className="auth-page"><form method="post" action="/api/internal/session" className="auth-panel">
+    <div className="auth-brand">ORBIT NEWS NETWORK</div>
+    <h1>Migration access</h1>
+    <p>Neon Auth is not configured yet. Use the temporary administrator key during migration.</p>
+    <label className="auth-field">Administrative access key
+      <input name="accessKey" type="password" required autoComplete="current-password" />
+    </label>
+    <input type="hidden" name="returnTo" value={returnTo} />
+    {query.error ? <p role="alert" className="auth-error">Access was not accepted.</p> : null}
+    <div className="auth-actions"><button type="submit">Continue</button><Link href="/">Cancel</Link></div>
+  </form></main>;
 }

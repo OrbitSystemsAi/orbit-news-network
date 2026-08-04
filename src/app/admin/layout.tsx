@@ -1,2 +1,9 @@
 import { AppShell } from "@/components/app-shell";
-export default function AdminLayout({children}:{children:React.ReactNode}){return <AppShell mode="admin">{children}</AppShell>}
+import { requireOnnAdministrator } from "@/lib/auth/authorization";
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminLayout({children}:{children:React.ReactNode}){
+  const identity = await requireOnnAdministrator();
+  return <AppShell mode="admin" identity={identity}>{children}</AppShell>;
+}

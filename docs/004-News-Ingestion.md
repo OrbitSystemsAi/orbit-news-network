@@ -2,11 +2,11 @@
 
 ## Connector architecture
 
-`NewsSourceConnector` accepts a reviewed feed configuration and returns validated `CollectedArticle` records. The RSS/Atom connector fetches only the configured feed URL with a ten-second default timeout and an identifying ONN user agent. It never follows article links, scrapes pages, downloads images, or stores complete bodies.
+`NewsSourceConnector` accepts a reviewed feed configuration and returns validated `CollectedArticle` records. The RSS/Atom connector fetches only the configured feed URL with a ten-second default timeout and an identifying ONN user agent. It never follows article links, scrapes pages, downloads images, or stores complete bodies. The connector rejects local, private, link-local, reserved, and credential-bearing URLs; revalidates each redirect; allows at most three redirects; and caps feed responses at 2 MB.
 
 ## Approval workflow
 
-New sources enter `PENDING_REVIEW`. Testing fetches and parses a safe summary but does not activate the source. An administrator reviews publisher terms, topic mappings, and refresh settings before activation. Sources may be paused or rejected at any time. No external feed URL is seeded automatically.
+New sources enter `PENDING_REVIEW`. Testing fetches and parses a safe summary but does not activate the source. Activation requires a durable record confirming that the feed is official or authorized, publisher terms were reviewed, and attribution requirements were captured. ONN records the reviewer, review time, editorial notes, and a policy re-review date six months later. Sources may be paused or rejected at any time. No external feed URL is seeded automatically.
 
 ## Normalization
 
@@ -25,3 +25,9 @@ A relevant-news request resolves authorized topics and active mapped sources. A 
 Every query requires active articles whose publication timestamp is within `NEWS_VISIBLE_HOURS` (24 by default). Refresh marks older records expired; permanent deletion after the configurable diagnostic window is a later maintenance operation. Each source records counts, duration, and a bounded safe error message. One failing source does not stop others.
 
 Publisher descriptions remain source-provided excerpts. ONN does not claim redistribution rights; administrators must review each feed’s terms before production activation.
+
+The August 4, 2026 review confirmed the configured NASA and JPL endpoints on official agency domains. ONN must link to the original item, identify NASA or JPL as the source, avoid implied endorsement, and avoid reuse of separately copyrighted third-party material. Supporting primary guidance: `https://cneos.jpl.nasa.gov/feed/`, `https://www.jpl.nasa.gov/rss/`, and `https://sti.nasa.gov/disclaimers/`.
+
+## Operator visibility
+
+The protected Sources screen shows current source state, topic mappings, refresh health, recent active external articles, and recent processing-run counts. Operators can test without storing, add a source for review, activate or pause it, reject or reopen it, and force a bounded manual refresh. Repeat refreshes expose duplicate counts and do not create additional article records.

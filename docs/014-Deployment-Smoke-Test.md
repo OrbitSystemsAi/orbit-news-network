@@ -5,7 +5,8 @@ Record each run with date, tester, commit, environment, deployment URL, and data
 ## Public and access checks
 
 - `/`, `/developers`, and `/api/v1/health` return expected safe responses.
-- `/admin`, `/admin/*`, `/portal`, `/portal/projects`, `/portal/feeds`, `/portal/api-keys`, `/portal/publications`, `/portal/content`, `/portal/distribution`, `/portal/analytics`, and `/portal/knowledge-graph` redirect to `/access` without a valid session and load after access is granted.
+- `/admin`, `/admin/*`, `/portal`, `/portal/projects`, `/portal/feeds`, `/portal/api-keys`, `/portal/publications`, `/portal/content`, `/portal/distribution`, `/portal/analytics`, and `/portal/knowledge-graph` redirect to `/access/sign-in` without a valid Neon Auth session and load only for an identity listed in `ONN_ADMIN_EMAILS`.
+- A valid Neon Auth user absent from `ONN_ADMIN_EMAILS` is redirected to `/access-denied` and internal APIs return 401.
 - The session cookie is HTTP-only, same-site strict, secure in production, expires as configured, and contains no secret.
 
 ## Database

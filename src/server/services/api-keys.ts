@@ -1,7 +1,7 @@
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
 export type KeyEnvironment = "development" | "production";
-export const API_KEY_SCOPES = ["news:read","news:feedback","content:submit","content:read","content:feedback","publications:read","feed:read","analytics:read"] as const;
+export const API_KEY_SCOPES = ["news:read","news:feedback","content:submit","content:read","content:feedback","publications:read","feed:read","feed:feedback","analytics:read"] as const;
 export type ApiKeyScope = typeof API_KEY_SCOPES[number];
 
 function pepper(secret: string) {

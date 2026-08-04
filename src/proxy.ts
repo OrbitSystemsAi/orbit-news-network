@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getNeonAuth } from "@/lib/auth/server";
 import { accessCookieName, verifyAccessSession } from "@/lib/security/access-session";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  const auth = getNeonAuth();
+  if (auth) return auth.middleware({ loginUrl: "/access/sign-in" })(request);
+
   const session = request.cookies.get(accessCookieName)?.value;
   if (verifyAccessSession(session, process.env.ADMIN_ACCESS_KEY)) return NextResponse.next();
 

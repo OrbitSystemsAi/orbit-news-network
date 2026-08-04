@@ -7,6 +7,7 @@ import { assignKeywordTopics,authorizeTopics } from "@/server/services/topics";
 import { rankRelevantArticles,scoreArticle } from "@/server/services/relevance";
 import { isRefreshLocked,isSourceFresh,requiredRefreshMinutes } from "@/server/services/freshness";
 import { feedbackRequestSchema,relevantNewsRequestSchema } from "@/lib/validation/news";
+import { isPublicNetworkAddress } from "@/server/connectors/feed-safety";
 
 const secret="a-secure-test-pepper-that-is-at-least-32-characters";
 describe("API keys",()=>{
@@ -18,6 +19,12 @@ describe("RSS and Atom normalization",()=>{
  it("normalizes RSS",()=>{const xml=`<rss><channel><item><guid>1</guid><title>RSS story</title><description>Summary</description><link>https://example.com/a</link><pubDate>Sun, 27 Jul 2026 10:00:00 GMT</pubDate></item></channel></rss>`;expect(normalizeFeedXml(xml)[0]).toMatchObject({externalId:"1",title:"RSS story",canonicalUrl:"https://example.com/a"})});
  it("normalizes Atom",()=>{const xml=`<feed><entry><id>x</id><title>Atom story</title><summary>Summary</summary><link href="https://example.com/b"/><updated>2026-07-27T10:00:00Z</updated><author><name>Editor</name></author></entry></feed>`;expect(normalizeFeedXml(xml)[0]).toMatchObject({externalId:"x",author:"Editor",canonicalUrl:"https://example.com/b"})});
  it("falls back to collection time for missing dates",()=>{const fallback=new Date("2026-07-27T12:00:00Z");const item=normalizeFeedXml(`<rss><channel><item><title>No date</title><link>https://example.com/c</link></item></channel></rss>`,fallback)[0];expect(item.publishedAt).toEqual(fallback)});
+ it("rejects non-feed XML",()=>expect(()=>normalizeFeedXml(`<html><body>Not a feed</body></html>`)).toThrow("not an RSS or Atom feed"));
+ it("drops malformed entries without rejecting valid neighbors",()=>{const items=normalizeFeedXml(`<rss><channel><item><title>Missing URL</title></item><item><title>Valid</title><link>https://example.com/valid</link></item></channel></rss>`);expect(items.map(item=>item.title)).toEqual(["Valid"])});
+});
+describe("feed network safety",()=>{
+ it.each(["127.0.0.1","10.0.0.8","169.254.169.254","192.0.0.1","192.0.2.1","192.168.1.1","198.51.100.1","203.0.113.1","::1","fd00::1","fe80::1"])("rejects non-public address %s",address=>expect(isPublicNetworkAddress(address)).toBe(false));
+ it.each(["8.8.8.8","1.1.1.1","192.0.66.108","2606:4700:4700::1111"])("accepts public address %s",address=>expect(isPublicNetworkAddress(address)).toBe(true));
 });
 describe("article identity",()=>{
  it("canonicalizes and removes tracking without removing identity parameters",()=>expect(canonicalizeUrl("HTTPS://Example.com/story/?id=7&utm_source=x#part")).toBe("https://example.com/story?id=7"));
@@ -30,6 +37,7 @@ describe("topics and relevance",()=>{
  it("assigns conservative keyword topics",()=>expect(assignKeywordTopics("Hospital expands patient care","").map(x=>x.slug)).toContain("healthcare"));
  const now=new Date("2026-07-27T12:00:00Z");const articles=[{id:"a",publishedAt:new Date("2026-07-27T11:00:00Z"),topics:[{slug:"healthcare",score:1,assignmentSource:"FEED_MAPPING"}]},{id:"b",publishedAt:new Date("2026-07-27T10:00:00Z"),topics:[{slug:"finance",score:1}]}];
  it("scores explicit career matches strongly",()=>expect(scoreArticle(articles[0],[{slug:"healthcare",weight:10,source:"career"}],now)).toBeGreaterThan(10));
+ it("does not inflate relevance when a topic has multiple assignment records",()=>{const article={...articles[0],topics:[...articles[0].topics,{slug:"healthcare",score:.7,assignmentSource:"KEYWORD_RULE"}]};expect(scoreArticle(article,[{slug:"healthcare",weight:10}],now)).toBe(scoreArticle(articles[0],[{slug:"healthcare",weight:10}],now))});
  it("honors excluded topics",()=>expect(rankRelevantArticles(articles,[{slug:"healthcare",weight:10},{slug:"finance",weight:10}],{excludedTopics:["finance"],maximumItems:4,now}).map(x=>x.article.id)).toEqual(["a"]));
  it("excludes previously shown article IDs",()=>expect(rankRelevantArticles(articles,[{slug:"healthcare",weight:10}],{excludeArticleIds:["a"],maximumItems:4,now})).toHaveLength(0));
  it("enforces project maximum items",()=>expect(rankRelevantArticles([...articles,{...articles[0],id:"c"}],[{slug:"healthcare",weight:10}],{maximumItems:1,now})).toHaveLength(1));

@@ -5,7 +5,7 @@ import { serverEnvironment } from "@/lib/environment/server";
 import { isAdminRequest } from "@/server/services/request-auth";
 import { API_KEY_SCOPES,generateApiKey,hashApiKey } from "@/server/services/api-keys";
 export async function POST(request:Request){
- if(!isAdminRequest(request))return apiError("UNAUTHORIZED","Administrative access is required.",401);
+ if(!await isAdminRequest(request))return apiError("UNAUTHORIZED","Administrative access is required.",401);
  if(!serverEnvironment.API_KEY_HASH_SECRET)return apiError("SERVER_CONFIGURATION","API key hashing is not configured.",503);
  const body=await request.json().catch(()=>null);const project=await database.project.findUnique({where:{id:body?.projectId}});
  if(!project)return apiError("PROJECT_NOT_FOUND","Project not found.",404);
@@ -16,4 +16,4 @@ export async function POST(request:Request){
  const record=await database.projectApiKey.create({data:{projectId:project.id,name:body?.name||"Development key",environment:project.environment,prefix:generated.prefix,keyHash:hashApiKey(generated.key,serverEnvironment.API_KEY_HASH_SECRET),scopes,status:"ACTIVE"}});
  return apiSuccess({id:record.id,name:record.name,prefix:record.prefix,scopes:record.scopes,key:generated.key,displayOnce:true},201);
 }
-export async function DELETE(request:Request){if(!isAdminRequest(request))return apiError("UNAUTHORIZED","Administrative access is required.",401);const body=await request.json().catch(()=>null);if(!body?.id)return apiError("VALIDATION_ERROR","Key ID is required.",400);await database.projectApiKey.update({where:{id:body.id},data:{status:"REVOKED",revokedAt:new Date()}});return apiSuccess({revoked:true});}
+export async function DELETE(request:Request){if(!await isAdminRequest(request))return apiError("UNAUTHORIZED","Administrative access is required.",401);const body=await request.json().catch(()=>null);if(!body?.id)return apiError("VALIDATION_ERROR","Key ID is required.",400);await database.projectApiKey.update({where:{id:body.id},data:{status:"REVOKED",revokedAt:new Date()}});return apiSuccess({revoked:true});}

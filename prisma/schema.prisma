@@ -175,6 +175,20 @@ enum ChangedByType {
   SYSTEM
 }
 
+enum TaxonomyNodeType {
+  CATEGORY
+  SUBCATEGORY
+  TOPIC
+  TAG
+  ENTITY
+}
+
+enum TaxonomyNodeStatus {
+  ACTIVE
+  DEPRECATED
+  DISABLED
+}
+
 model Organization {
   id        String         @id @default(cuid())
   name      String
@@ -202,6 +216,7 @@ model Project {
   distributionRules             DistributionRule[]
   requestLogs                   ApiRequestLog[]
   topicSubscriptions            ProjectTopic[]
+  taxonomyPermissions           ProjectTaxonomyPermission[]
   processingRuns                ProcessingRun[]
   interactions                  NewsInteraction[]
   destinationTargets            DistributionTarget[]
@@ -242,8 +257,57 @@ model Topic {
   externalArticles   ExternalArticleTopic[]
   projects           ProjectTopic[]
   contentSubmissions ContentSubmissionTopic[]
+  taxonomyNode       TaxonomyNode?
   createdAt          DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
+}
+
+model TaxonomyNode {
+  id                  String                      @id @default(cuid())
+  name                String
+  slug                String                      @unique
+  nodeType            TaxonomyNodeType
+  status              TaxonomyNodeStatus          @default(ACTIVE)
+  description         String?
+  parentId            String?
+  parent              TaxonomyNode?               @relation("TaxonomyHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children            TaxonomyNode[]              @relation("TaxonomyHierarchy")
+  topicId             String?                     @unique
+  topic               Topic?                      @relation(fields: [topicId], references: [id], onDelete: Restrict)
+  replacedById        String?
+  replacedBy          TaxonomyNode?               @relation("TaxonomyReplacement", fields: [replacedById], references: [id], onDelete: SetNull)
+  replaces            TaxonomyNode[]              @relation("TaxonomyReplacement")
+  governanceVersion   Int                         @default(1)
+  aliases             TaxonomyAlias[]
+  projectPermissions  ProjectTaxonomyPermission[]
+  createdAt           DateTime                    @default(now())
+  updatedAt           DateTime                    @updatedAt
+
+  @@index([parentId, status])
+  @@index([nodeType, status])
+}
+
+model TaxonomyAlias {
+  id        String       @id @default(cuid())
+  nodeId    String
+  node      TaxonomyNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  alias     String       @unique
+  createdAt DateTime     @default(now())
+
+  @@index([nodeId])
+}
+
+model ProjectTaxonomyPermission {
+  projectId    String
+  taxonomyNodeId String
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taxonomyNode TaxonomyNode @relation(fields: [taxonomyNodeId], references: [id], onDelete: Cascade)
+  defaultWeight Float       @default(1)
+  inherited     Boolean     @default(false)
+  status        PlatformStatus @default(ACTIVE)
+
+  @@id([projectId, taxonomyNodeId])
+  @@index([taxonomyNodeId, status])
 }
 
 model ProjectTopic {
@@ -271,6 +335,13 @@ model FeedSource {
   lastSuccessfulRefreshAt       DateTime?
   refreshLockAt                 DateTime?
   consecutiveFailureCount       Int                   @default(0)
+  officialFeedConfirmed         Boolean               @default(false)
+  termsReviewed                 Boolean               @default(false)
+  attributionNotes              String?
+  editorialNotes                String?
+  reviewedAt                    DateTime?
+  reviewedByIdentifier          String?
+  policyReviewDueAt             DateTime?
   topics                        FeedSourceTopic[]
   articles                      ExternalArticle[]
   runSources                    ProcessingRunSource[]
@@ -278,6 +349,7 @@ model FeedSource {
   updatedAt                     DateTime              @updatedAt
 
   @@index([status, lastSuccessfulRefreshAt])
+  @@index([status, policyReviewDueAt])
   @@index([refreshLockAt])
 }
 
@@ -497,6 +569,7 @@ model ContentSubmissionTopic {
   topic               Topic                        @relation(fields: [topicId], references: [id], onDelete: Cascade)
   weight              Float
   assignmentSource    ContentTopicAssignmentSource
+  confidence          Float                         @default(1)
 
   @@id([contentSubmissionId, topicId, assignmentSource])
   @@index([topicId, weight])

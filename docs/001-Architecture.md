@@ -20,11 +20,11 @@ Versioned REST routes live under `/api/v1`. Browser bundles never contain ONN pr
 
 ## Database overview
 
-PostgreSQL/Neon is the system of record. The schema separates external rolling inventory from first-party submissions. Source, article, topic, project, publication, credential, rule, request-log, and processing-run models use ownership indexes and uniqueness constraints.
+PostgreSQL/Neon is the system of record. The schema separates external rolling inventory from first-party submissions. A governed taxonomy layer organizes stable legacy topics beneath shared categories and subcategories, with aliases, replacements, project permissions, assignment provenance, and confidence. Source, article, topic, taxonomy, project, publication, credential, rule, request-log, and processing-run models use ownership indexes and uniqueness constraints.
 
 ## MVP versus future state
 
-MVP: demand-driven RSS/Atom, deterministic categories/relevance, URL/fingerprint duplicates, project credentials, PostgreSQL, REST, and 24-hour visibility. Future: AI enrichment, semantic search, graph processing, streaming, webhooks, GraphQL, SDKs, billing, premium sources, and warehouse analytics. These future systems remain extension points, not active dependencies.
+MVP: demand-driven RSS/Atom, deterministic hierarchical classification/relevance, URL/fingerprint duplicates, project credentials, PostgreSQL, REST, and 24-hour visibility. Future: approved automated classifiers, semantic search, graph processing, streaming, webhooks, GraphQL, SDKs, billing, premium sources, and warehouse analytics. These future systems remain extension points, not active dependencies.
 
 
 ## Phase 2 functional request path
@@ -33,7 +33,7 @@ The bearer-key prefix locates a candidate record; scrypt verification with a ser
 
 Connectors normalize RSS/Atom metadata into minimal records. Canonical URL, source identifier, and content fingerprint enforce deterministic duplicates. Feed mappings and centralized keyword rules assign topics. Queries enforce active status and a 24-hour cutoff before explainable scoring. Feedback stores project ID, opaque external user ID, article ID, interaction, and timestamp only.
 
-`ADMIN_ACCESS_KEY` protects source, project, key, and manual-refresh operations during development. It is not subscriber authentication. Database locks provide practical single-database coordination but no durable queue. Failed sources are isolated; manual approval is required before activation, and no feeds are seeded.
+Individual Neon Auth sessions plus the server-only `ONN_ADMIN_EMAILS` allowlist protect source, project, key, and manual-refresh operations when Neon Auth is configured. `ADMIN_ACCESS_KEY` remains a temporary setup fallback and approved server-tool credential; it is not subscriber authentication. Database locks provide practical single-database coordination but no durable queue. Failed sources are isolated; manual approval is required before activation, and no feeds are seeded.
 
 
 ## Phase 3 publishing boundaries
@@ -42,10 +42,10 @@ An authenticated originating project submits safe first-party content into a pub
 
 The distribution engine evaluates origin/destination organizations and projects, active states, publication/content status, distribution level, explicit partner targets, and destination public-content access. Eligible retrieval creates a unique delivery. Destination interaction records use opaque project-scoped external user IDs. The unified feed returns separate candidate arrays; it does not compose an application magazine.
 
-API-key scopes are verified before each capability. Subscriber keys cannot invoke administrative state changes. Internal administration remains protected by `ADMIN_ACCESS_KEY` until subscriber/operator authentication is approved.
+API-key scopes are verified before each capability. Subscriber keys cannot invoke administrative state changes. Internal administration requires both a Neon Auth identity and explicit ONN administrator authorization; the legacy administrative key remains only for migration and approved server-side tooling.
 
 ## Private MVP deployment boundary
 
-The Vercel private MVP keeps the landing page, developer documentation, access page, health endpoint, and authenticated integration APIs reachable. Next.js proxy interception protects every `/admin/**` and `/portal/**` page with a temporary HMAC-signed, expiring HTTP-only session. Internal routes accept that session for same-origin portal requests while preserving the administrative header for approved server-side tooling. This shared gate is deliberately not represented as full authentication.
+The Vercel private MVP keeps the landing page, developer documentation, access pages, health endpoint, and authenticated integration APIs reachable. `/admin/**` and `/portal/**` are protected by Neon Auth middleware, then independently authorized against a server-only administrator allowlist in layouts and internal routes. Until Neon Auth is configured, the temporary HMAC-signed access session prevents setup lockout. The administrative header remains available only for approved server-side tooling.
 
 The runtime uses Neon’s pooled `DATABASE_URL`; controlled Prisma operations prefer `DIRECT_URL`. Preview and Production may temporarily share the existing free database, so builds never migrate or seed. A reviewed operator runs committed migrations before deployment. Vercel Git integration supplies preview and production artifacts; no duplicate deployment workflow, scheduler, paid monitor, or custom domain is part of this phase.

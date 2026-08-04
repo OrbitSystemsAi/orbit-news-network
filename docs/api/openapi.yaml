@@ -1,0 +1,103 @@
+openapi: 3.1.0
+info:
+  title: Orbit News Network Feed API
+  version: 1.0.0
+  description: Server-to-server feed retrieval and feedback for authorized Orbit applications.
+servers:
+  - url: https://onn.example.com
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/feed/relevant:
+    post:
+      summary: Retrieve a curated unified feed
+      operationId: getRelevantFeed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeedRequest' }
+      responses:
+        '200': { description: Complete feed, content: { application/json: { schema: { $ref: '#/components/schemas/FeedEnvelope' } } } }
+        '206': { description: Partial feed with at least one available origin, content: { application/json: { schema: { $ref: '#/components/schemas/FeedEnvelope' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '413': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '503': { $ref: '#/components/responses/Error' }
+  /api/v1/feed/feedback:
+    post:
+      summary: Record a feed interaction
+      operationId: recordFeedFeedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeedbackRequest' }
+      responses:
+        '201': { description: Interaction recorded }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }
+  responses:
+    Error:
+      description: Stable ONN error envelope
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorEnvelope' } } }
+  schemas:
+    Signal:
+      type: object
+      additionalProperties: false
+      required: [slug, weight]
+      properties:
+        slug: { type: string }
+        weight: { type: number, minimum: 0, maximum: 10 }
+        source: { type: string, enum: [career, interest, group, network] }
+    FeedRequest:
+      type: object
+      additionalProperties: false
+      required: [externalUserId]
+      properties:
+        externalUserId: { type: string, maxLength: 200 }
+        topics: { type: array, maxItems: 30, items: { $ref: '#/components/schemas/Signal' } }
+        classifications: { type: array, maxItems: 20, items: { $ref: '#/components/schemas/Signal' } }
+        excludedTopics: { type: array, maxItems: 30, items: { type: string } }
+        excludeItemIds: { type: array, maxItems: 100, items: { type: string } }
+        origins: { type: array, items: { type: string, enum: [first_party, external_news] } }
+        contentTypes: { type: array, items: { type: string } }
+        publicationSlugs: { type: array, maxItems: 30, items: { type: string } }
+        sourceSlugs: { type: array, maxItems: 30, items: { type: string } }
+        distributionLevels: { type: array, items: { type: string, enum: [private, profile, application, network, partner, public] } }
+        maximumItems: { type: integer, minimum: 1, maximum: 100, default: 12 }
+        maximumAgeHours: { type: integer, minimum: 1, maximum: 168, default: 24 }
+      anyOf: [{ required: [topics] }, { required: [classifications] }]
+    FeedbackRequest:
+      type: object
+      required: [externalUserId, itemType, itemId, interaction]
+      properties:
+        externalUserId: { type: string }
+        itemType: { type: string, enum: [first_party, external_news] }
+        itemId: { type: string }
+        interaction: { type: string, enum: [shown, opened, saved, dismissed, useful, not_relevant, shared] }
+    FeedEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: object, description: See the generated TypeScript FeedResponse contract for normalized item details. }
+        meta: { $ref: '#/components/schemas/Meta' }
+    ErrorEnvelope:
+      type: object
+      required: [error, meta]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties: { code: { type: string }, message: { type: string }, details: { type: array, items: {} } }
+        meta: { $ref: '#/components/schemas/Meta' }
+    Meta:
+      type: object
+      required: [requestId, timestamp]
+      properties: { requestId: { type: string }, timestamp: { type: string, format: date-time } }
