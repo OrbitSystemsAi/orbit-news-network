@@ -205,9 +205,9 @@ These steps are ordered dependencies. Work may overlap where safe, but a later p
 
 ### 5. Add initial production sources
 
-**Status:** `[~]` One reviewed NASA source is active; broader priority-taxonomy coverage remains.
+**Status:** `[~]` One reviewed NASA source is active; DOL and NSF are pending review; broader priority-taxonomy coverage remains.
 
-- [~] Begin with two to five strong sources per priority taxonomy area. The current production catalog has one active NASA source; NASA/JPL CNEOS is paused.
+- [~] Begin with two to five strong sources per priority taxonomy area. The current production catalog has one active NASA source, two image-blocked candidates pending review, and a paused NASA/JPL CNEOS source.
 - [x] Test parsing, dates, URLs, descriptions, authors, images, attribution, and duplicates for the current reviewed catalog.
 - [x] Verify that one source failure does not stop others.
 

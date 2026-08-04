@@ -17,11 +17,11 @@ ONN's production connector was run locally in non-storing test mode on August 4,
 
 | Candidate | Official feed | Proposed topics | Items parsed | Newest parsed item | Review state |
 | --- | --- | --- | ---: | --- | --- |
-| U.S. Department of Labor News Releases | `https://www.dol.gov/rss/releases.xml` | careers, employment, remote-work, business | 10 | 2026-07-22 | Candidate for first batch |
+| U.S. Department of Labor News Releases | `https://www.dol.gov/rss/releases.xml` | careers, employment, remote-work, business | 10 | 2026-07-22 | `PENDING_REVIEW`; activation not approved |
 | BLS Employment Situation | `https://www.bls.gov/feed/empsit.rss` | employment, careers, business | 12 | 2026-02-11 | Hold: parsed feed appears stale |
 | SEC Press Releases | `https://www.sec.gov/news/pressreleases.rss` | business, finance, government | 25 | 2026-05-27 | Hold: general reuse policy needs confirmation |
 | NIST News | `https://www.nist.gov/news-events/news/rss.xml` | technology, artificial-intelligence, digital-transformation | 40 | 2025-09-24 | Hold: parsed feed appears stale |
-| U.S. National Science Foundation News | `https://www.nsf.gov/rss/rss_www_news.xml` | education, technology, artificial-intelligence | 15 | 2026-07-29 | Candidate for first batch |
+| U.S. National Science Foundation News | `https://www.nsf.gov/rss/rss_www_news.xml` | education, technology, artificial-intelligence | 15 | 2026-07-29 | `PENDING_REVIEW`; activation not approved |
 
 The dates above describe the feed output observed by ONN, not the newest webpage content. BLS and NIST should not advance until the stale-feed discrepancy is understood.
 
@@ -56,7 +56,9 @@ Both feeds are official and parse successfully, but their newest parsed dates la
 
 ## Recommended first approval batch
 
-Advance DOL News Releases and NSF News to `PENDING_REVIEW` only. Before activation, add an enforceable source-level restriction that prevents image reuse for feeds whose visual-media rights are not confirmed. Keep SEC, BLS, and NIST as research candidates with no database record.
+DOL News Releases and NSF News were added to production as `PENDING_REVIEW` on August 4, 2026. The source-level image restriction is deployed and both records have images blocked. Neither source has been refreshed and neither has stored an article. Keep SEC, BLS, and NIST as research candidates with no database record.
+
+Activation remains a separate owner decision after official-feed confirmation, terms review, attribution requirements, permitted fields, restrictions, and final topic mappings are recorded.
 
 ## Primary references
 
