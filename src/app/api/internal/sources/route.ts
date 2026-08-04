@@ -12,6 +12,7 @@ const sourceUpdateSchema = z.object({
   minimumRefreshIntervalMinutes: z.number().int().min(5).max(1440).optional(),
   officialFeedConfirmed: z.boolean().optional(),
   termsReviewed: z.boolean().optional(),
+  allowExternalImages: z.boolean().optional(),
   attributionNotes: z.string().trim().max(2000).optional(),
   editorialNotes: z.string().trim().max(4000).optional(),
 }).strict();
@@ -85,6 +86,12 @@ export async function PATCH(request: Request) {
     const attribution = body.attributionNotes ?? existing.attributionNotes;
     if (!official || !terms || !attribution?.trim()) return apiError("SOURCE_REVIEW_REQUIRED", "Confirm official feed ownership, terms review, and attribution requirements before activation.", 409);
   }
+  if (body.allowExternalImages === true) {
+    const terms = body.termsReviewed ?? existing.termsReviewed;
+    const attribution = body.attributionNotes ?? existing.attributionNotes;
+    const restrictions = body.editorialNotes ?? existing.editorialNotes;
+    if (!terms || !attribution?.trim() || !restrictions?.trim()) return apiError("SOURCE_MEDIA_REVIEW_REQUIRED", "Record terms, attribution, and media restrictions before allowing external images.", 409);
+  }
   const reviewed = body.status === "ACTIVE";
   return apiSuccess(await database.feedSource.update({
     where: { id: body.id },
@@ -93,6 +100,7 @@ export async function PATCH(request: Request) {
       minimumRefreshIntervalMinutes: body.minimumRefreshIntervalMinutes,
       officialFeedConfirmed: body.officialFeedConfirmed,
       termsReviewed: body.termsReviewed,
+      allowExternalImages: body.allowExternalImages,
       attributionNotes: body.attributionNotes,
       editorialNotes: body.editorialNotes,
       reviewedAt: reviewed ? new Date() : undefined,

@@ -9,6 +9,7 @@ import { loadProjectTopicFeedback } from "./personalization";
 import { rankRelevantArticles } from "./relevance";
 import { refreshRelevantSources } from "./refresh";
 import { resolveProjectTaxonomy } from "./taxonomy";
+import { permittedSourceImageUrl } from "./source-media";
 
 type FeedProject = { id: string; organizationId?: string; slug: string; name: string; status: string; publicContentAccess?: boolean; maximumItemsPerRequest: number; minimumRefreshIntervalMinutes: number };
 type FeedOrigin = "first_party" | "external_news";
@@ -92,7 +93,7 @@ async function externalNews(project: FeedProject, input: UnifiedFeedRequest, res
   const byId = new Map(articles.map(article => [article.id, article]));
   return ranked.map(result => {
     const item = byId.get(result.article.id)!;
-    return { id: item.id, origin: "external_news", contentType: "external_news", title: item.title, summary: item.description, url: item.canonicalUrl, imageUrl: item.imageUrl, publisher: { name: item.feedSource.name, slug: item.feedSource.slug }, publishedAt: item.publishedAt.toISOString(), topics: item.topics.filter(topic => topicSlugs.includes(topic.topic.slug)).map(topic => ({ slug: topic.topic.slug, name: topic.topic.name, confidence: topic.score, subcategory: topic.topic.taxonomyNode?.parent ? { slug: topic.topic.taxonomyNode.parent.slug, name: topic.topic.taxonomyNode.parent.name } : null, category: topic.topic.taxonomyNode?.parent?.parent ? { slug: topic.topic.taxonomyNode.parent.parent.slug, name: topic.topic.taxonomyNode.parent.parent.name } : null })), provenance: { kind: "external_news", sourceId: item.feedSource.id, sourceName: item.feedSource.name, originalUrl: item.canonicalUrl }, relevanceScore: result.relevanceScore, relevanceExplanation: result.relevanceExplanation };
+    return { id: item.id, origin: "external_news", contentType: "external_news", title: item.title, summary: item.description, url: item.canonicalUrl, imageUrl: permittedSourceImageUrl(item.feedSource.allowExternalImages,item.imageUrl), publisher: { name: item.feedSource.name, slug: item.feedSource.slug }, publishedAt: item.publishedAt.toISOString(), topics: item.topics.filter(topic => topicSlugs.includes(topic.topic.slug)).map(topic => ({ slug: topic.topic.slug, name: topic.topic.name, confidence: topic.score, subcategory: topic.topic.taxonomyNode?.parent ? { slug: topic.topic.taxonomyNode.parent.slug, name: topic.topic.taxonomyNode.parent.name } : null, category: topic.topic.taxonomyNode?.parent?.parent ? { slug: topic.topic.taxonomyNode.parent.parent.slug, name: topic.topic.taxonomyNode.parent.parent.name } : null })), provenance: { kind: "external_news", sourceId: item.feedSource.id, sourceName: item.feedSource.name, originalUrl: item.canonicalUrl }, relevanceScore: result.relevanceScore, relevanceExplanation: result.relevanceExplanation };
   });
 }
 

@@ -9,6 +9,7 @@ import { serverEnvironment } from "@/lib/environment/server";
 import { resolveProjectTaxonomy } from "@/server/services/taxonomy";
 import { loadProjectTopicFeedback } from "@/server/services/personalization";
 import { sourceQualityScore } from "@/server/services/curation";
+import { permittedSourceImageUrl } from "@/server/services/source-media";
 
 export async function POST(request: Request) {
   const started = Date.now(), requestId = crypto.randomUUID();
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   const byId = new Map(articles.map(article => [article.id, article]));
   const items = ranked.map(({ article, relevanceScore, relevanceExplanation }) => {
     const item = byId.get(article.id)!;
-    return { id: item.id, title: item.title, description: item.description, source: { name: item.feedSource.name, websiteUrl: item.feedSource.websiteUrl, qualityScore: sourceQualityScore(item.feedSource) }, originalUrl: item.canonicalUrl, imageUrl: item.imageUrl, publishedAt: item.publishedAt.toISOString(), matchedTopics: item.topics.filter(topic => topicSlugs.includes(topic.topic.slug)).map(topic => ({ slug: topic.topic.slug, name: topic.topic.name, score: topic.score, assignmentSource: topic.assignmentSource, subcategory: topic.topic.taxonomyNode?.parent ? { slug: topic.topic.taxonomyNode.parent.slug, name: topic.topic.taxonomyNode.parent.name } : null, category: topic.topic.taxonomyNode?.parent?.parent ? { slug: topic.topic.taxonomyNode.parent.parent.slug, name: topic.topic.taxonomyNode.parent.parent.name } : null })), relevanceScore, relevanceExplanation };
+    return { id: item.id, title: item.title, description: item.description, source: { name: item.feedSource.name, websiteUrl: item.feedSource.websiteUrl, qualityScore: sourceQualityScore(item.feedSource) }, originalUrl: item.canonicalUrl, imageUrl: permittedSourceImageUrl(item.feedSource.allowExternalImages,item.imageUrl), publishedAt: item.publishedAt.toISOString(), matchedTopics: item.topics.filter(topic => topicSlugs.includes(topic.topic.slug)).map(topic => ({ slug: topic.topic.slug, name: topic.topic.name, score: topic.score, assignmentSource: topic.assignmentSource, subcategory: topic.topic.taxonomyNode?.parent ? { slug: topic.topic.taxonomyNode.parent.slug, name: topic.topic.taxonomyNode.parent.name } : null, category: topic.topic.taxonomyNode?.parent?.parent ? { slug: topic.topic.taxonomyNode.parent.parent.slug, name: topic.topic.taxonomyNode.parent.parent.name } : null })), relevanceScore, relevanceExplanation };
   });
   await database.apiRequestLog.create({ data: { projectId: project.id, endpoint: "/api/v1/news/relevant", httpMethod: "POST", responseStatus: 200, durationMs: Date.now() - started, requestId } });
   return apiSuccess({ project: { id: project.id, slug: project.slug, name: project.name }, generatedAt: new Date().toISOString(), resolvedTopics: resolved.topics, refresh, items }, 200, { requestId });

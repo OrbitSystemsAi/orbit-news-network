@@ -15,6 +15,7 @@ type Source = {
   consecutiveFailureCount: number;
   officialFeedConfirmed: boolean;
   termsReviewed: boolean;
+  allowExternalImages: boolean;
   attributionNotes: string | null;
   reviewedAt: string | null;
   policyReviewDueAt: string | null;
@@ -201,11 +202,12 @@ export function SourceAdmin() {
         <button type="button" disabled={Boolean(pendingAction) || !sources.some((source) => source.status === "ACTIVE")} onClick={refreshActiveSources}>{pendingAction === "refresh" ? "Refreshing…" : "Refresh active sources"}</button>
       </div>
       {sources.length ? <div className="source-table-wrap"><table className="source-table">
-        <thead><tr><th>Source</th><th>Topics</th><th>Status</th><th>Policy review</th><th>Last success</th><th>Failures</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Source</th><th>Topics</th><th>Status</th><th>Media</th><th>Policy review</th><th>Last success</th><th>Failures</th><th>Actions</th></tr></thead>
         <tbody>{sources.map((source) => <tr key={source.id}>
           <td><strong>{source.name}</strong><a href={source.feedUrl} target="_blank" rel="noreferrer">{source.feedUrl}</a></td>
           <td>{source.topics.map(({ topic }) => topic.name).join(", ")}</td>
           <td><span className={`source-badge source-badge-${source.status.toLowerCase()}`}>{source.status.replace("_", " ")}</span></td>
+          <td>{source.allowExternalImages ? "Feed images allowed" : "Images blocked"}</td>
           <td>{source.reviewedAt ? <><span>Reviewed {new Date(source.reviewedAt).toLocaleDateString()}</span><small>{source.policyReviewDueAt ? `Due ${new Date(source.policyReviewDueAt).toLocaleDateString()}` : ""}</small></> : "Not recorded"}</td>
           <td>{source.lastSuccessfulRefreshAt ? new Date(source.lastSuccessfulRefreshAt).toLocaleString() : "Never"}</td>
           <td>{source.consecutiveFailureCount}</td>

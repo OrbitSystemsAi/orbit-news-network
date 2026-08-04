@@ -8,6 +8,7 @@ import { rankRelevantArticles,scoreArticle } from "@/server/services/relevance";
 import { isRefreshLocked,isSourceFresh,requiredRefreshMinutes } from "@/server/services/freshness";
 import { feedbackRequestSchema,relevantNewsRequestSchema } from "@/lib/validation/news";
 import { isPublicNetworkAddress } from "@/server/connectors/feed-safety";
+import { permittedSourceImageUrl } from "@/server/services/source-media";
 
 const secret="a-secure-test-pepper-that-is-at-least-32-characters";
 describe("API keys",()=>{
@@ -25,6 +26,10 @@ describe("RSS and Atom normalization",()=>{
 describe("feed network safety",()=>{
  it.each(["127.0.0.1","10.0.0.8","169.254.169.254","192.0.0.1","192.0.2.1","192.168.1.1","198.51.100.1","203.0.113.1","::1","fd00::1","fe80::1"])("rejects non-public address %s",address=>expect(isPublicNetworkAddress(address)).toBe(false));
  it.each(["8.8.8.8","1.1.1.1","192.0.66.108","2606:4700:4700::1111"])("accepts public address %s",address=>expect(isPublicNetworkAddress(address)).toBe(true));
+});
+describe("source media permissions",()=>{
+ it("blocks feed images by default",()=>expect(permittedSourceImageUrl(false,"https://publisher.example/image.jpg")).toBeNull());
+ it("passes images only when explicitly allowed",()=>expect(permittedSourceImageUrl(true,"https://publisher.example/image.jpg")).toBe("https://publisher.example/image.jpg"));
 });
 describe("article identity",()=>{
  it("canonicalizes and removes tracking without removing identity parameters",()=>expect(canonicalizeUrl("HTTPS://Example.com/story/?id=7&utm_source=x#part")).toBe("https://example.com/story?id=7"));

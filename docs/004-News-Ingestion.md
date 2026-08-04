@@ -14,6 +14,8 @@ The authoritative operator checklist and decision process are maintained in the 
 
 RSS and Atom provider fields map to external ID, title, source-provided description, canonical URL, author, optional external image URL, publication timestamp, and minimal format metadata. Zod rejects malformed entries without failing the remaining feed. Missing or invalid dates use collection time.
 
+External images are blocked by default at the source level. Unless an operator explicitly records that a reviewed source permits image reuse and enables `allowExternalImages`, ingestion stores no image URL and feed responses suppress any previously stored image URL for that source.
+
 ## Duplicates and topics
 
 URLs are normalized by removing fragments, trailing slashes, and common tracking parameters while retaining identity parameters. A SHA-256 fingerprint combines canonical URL, normalized title, source, and publication day. ONN checks canonical URL, source identifier, and fingerprint. Articles inherit feed mappings and may gain conservative keyword-rule topics; assignment source and deterministic confidence are stored.

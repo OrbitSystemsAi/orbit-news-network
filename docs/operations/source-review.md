@@ -55,6 +55,7 @@ Reactivation follows the same evidence and approval requirements as initial acti
 - [ ] Publisher identity and canonical website are recorded.
 - [ ] Terms or feed guidance were reviewed.
 - [ ] Permitted fields and restrictions are recorded.
+- [ ] External images remain blocked unless their reuse and attribution requirements are explicitly confirmed.
 - [ ] Attribution and original-item linking requirements are recorded.
 - [ ] Editorial quality and taxonomy fit were reviewed.
 - [ ] Safe test parsing succeeded without storing content.

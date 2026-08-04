@@ -337,6 +337,7 @@ model FeedSource {
   consecutiveFailureCount       Int                   @default(0)
   officialFeedConfirmed         Boolean               @default(false)
   termsReviewed                 Boolean               @default(false)
+  allowExternalImages           Boolean               @default(false)
   attributionNotes              String?
   editorialNotes                String?
   reviewedAt                    DateTime?

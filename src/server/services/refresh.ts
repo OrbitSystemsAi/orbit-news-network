@@ -5,6 +5,7 @@ import { assignKeywordTopics } from "./topics";
 import { RssAtomConnector } from "../connectors/rss-atom";
 import { serverEnvironment } from "@/lib/environment/server";
 import type { Prisma } from "@/generated/prisma/client";
+import { permittedSourceImageUrl } from "./source-media";
 
 const connector = new RssAtomConnector();
 type Source = Awaited<ReturnType<typeof loadSources>>[number];
@@ -40,7 +41,7 @@ export async function refreshRelevantSources(topicSlugs:string[], projectRefresh
           const keywordMatch=keyword.find(candidate=>candidate.slug===mapping.topic.slug);
           return {topicId:mapping.topicId,score:Math.max(mapping.weight,keywordMatch?.score??0),assignmentSource:"FEED_MAPPING" as const};
         });
-        await database.externalArticle.create({data:{feedSourceId:source.id,externalIdentifier:item.externalId,canonicalUrl:url,title:item.title,description:item.description,author:item.author,imageUrl:item.imageUrl,publishedAt:item.publishedAt,contentFingerprint:fingerprint,sourceMetadata:item.sourceMetadata as Prisma.InputJsonValue,topics:{create:mappings}}});
+        await database.externalArticle.create({data:{feedSourceId:source.id,externalIdentifier:item.externalId,canonicalUrl:url,title:item.title,description:item.description,author:item.author,imageUrl:permittedSourceImageUrl(source.allowExternalImages,item.imageUrl),publishedAt:item.publishedAt,contentFingerprint:fingerprint,sourceMetadata:item.sourceMetadata as Prisma.InputJsonValue,topics:{create:mappings}}});
         added++;sourceAdded++;
       }
       refreshed++;
