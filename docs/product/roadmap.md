@@ -215,21 +215,21 @@ These steps are ordered dependencies. Work may overlap where safe, but a later p
 
 ### 6. Improve source safety and reliability
 
-**Status:** `[~]`
+**Status:** `[x]` Automatic failure controls and controlled reactivation verified on August 4, 2026.
 
 - [x] Block localhost, private networks, metadata services, unsafe protocols, and unsafe redirect destinations.
 - [x] Limit response size, redirects, content types, and processing time.
 - [x] Sanitize stored text and bound logged errors.
-- [~] Add failure thresholds, warnings, automatic pausing, and controlled reactivation. Failure counts and manual pause/reactivation exist; automatic thresholds remain.
+- [x] Add failure thresholds, warnings, automatic pausing, and controlled reactivation.
 
 **Complete when:** A malicious or broken feed cannot access internal services, consume unbounded resources, or expose sensitive information.
 
 ### 7. Validate normalization and deduplication
 
-**Status:** `[~]`
+**Status:** `[x]` Fixture-backed identity and duplicate behavior verified on August 4, 2026.
 
-- [~] Add fixtures for tracking parameters, fragments, slashes, protocol changes, identifiers, title changes, syndication, and republishing. Core URL and fingerprint cases exist; the full matrix remains.
-- [ ] Define update-versus-new-item behavior.
+- [x] Add fixtures for tracking parameters, fragments, slashes, protocol changes, identifiers, title changes, syndication, and republishing.
+- [x] Define update-versus-new-item behavior.
 - [x] Preserve stable ONN IDs and provenance.
 
 **Complete when:** Repeat refreshes are idempotent and duplicate stories rarely reach consumers.
@@ -362,4 +362,4 @@ Step 17: complete and evaluate the Career Pivot production pilot while preservin
 
 ## Immediate next action
 
-Use the source-review runbook to nominate and review the first small production-source batch for careers, employment, business, technology, and education. No source should be activated until ownership, terms, attribution, permitted fields, restrictions, taxonomy fit, and safe parsing have been reviewed. In parallel, complete Step 6 automatic failure thresholds and Step 7's normalization fixture matrix before scaling the catalog.
+Move refresh work to scheduled processing before scaling the source catalog, then add operational metrics and actionable alerts. Continue using the source-review runbook for each candidate; no source should be activated until ownership, terms, attribution, permitted fields, restrictions, taxonomy fit, and safe parsing have been reviewed.

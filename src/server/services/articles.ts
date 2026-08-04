@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
 
-const TRACKERS = new Set(["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","fbclid"]);
+const TRACKERS = new Set(["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","dclid","fbclid","msclkid","mc_cid","mc_eid"]);
 
 export function canonicalizeUrl(value: string) {
   const url = new URL(value);
+  if (url.protocol === "http:") url.protocol = "https:";
   url.hash = "";
   for (const key of [...url.searchParams.keys()]) {
     if (TRACKERS.has(key.toLowerCase())) url.searchParams.delete(key);

@@ -335,6 +335,8 @@ model FeedSource {
   lastSuccessfulRefreshAt       DateTime?
   refreshLockAt                 DateTime?
   consecutiveFailureCount       Int                   @default(0)
+  autoPausedAt                  DateTime?
+  autoPauseReason               String?
   officialFeedConfirmed         Boolean               @default(false)
   termsReviewed                 Boolean               @default(false)
   allowExternalImages           Boolean               @default(false)

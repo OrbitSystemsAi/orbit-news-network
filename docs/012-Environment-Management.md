@@ -18,6 +18,7 @@
 | `DEFAULT_FEED_REFRESH_MINUTES` | server-only configuration | yes | Default feed cadence |
 | `FEED_REQUEST_TIMEOUT_MS` | server-only configuration | yes | Feed request timeout |
 | `REFRESH_LOCK_TIMEOUT_MINUTES` | server-only configuration | yes | Refresh lock expiry |
+| `SOURCE_AUTO_PAUSE_FAILURE_THRESHOLD` | server-only configuration | optional | Consecutive refresh failures before automatic source pause; default 3 |
 | `CONTENT_MAX_TITLE_LENGTH` | server-only configuration | yes | Submission validation |
 | `CONTENT_MAX_SUMMARY_LENGTH` | server-only configuration | yes | Submission validation |
 | `CONTENT_MAX_BODY_LENGTH` | server-only configuration | yes | Submission validation |
@@ -38,3 +39,5 @@ Use the pooled connection for runtime traffic and the direct connection for cont
 Generate `ADMIN_ACCESS_KEY`, `API_KEY_HASH_SECRET`, and `NEON_AUTH_COOKIE_SECRET` with a cryptographically secure password generator and store them only locally and in Vercel. The Neon Auth cookie secret must remain stable across deployments within one environment. Rotate a secret by updating all intended Vercel environments, updating the approved local secret store, redeploying, verifying access, and invalidating the old value. Rotating `ADMIN_ACCESS_KEY` invalidates legacy private-MVP sessions; rotating `NEON_AUTH_COOKIE_SECRET` invalidates cached Neon Auth session data. Database credential exposure also requires Neon-side rotation.
 
 `ONN_ALLOW_SIGN_UP=true` is intended only for controlled initial provisioning. An account created through Neon Auth still receives no ONN access unless its normalized email is listed in `ONN_ADMIN_EMAILS`. Return the flag to `false` after the required operator identities exist.
+
+`SOURCE_AUTO_PAUSE_FAILURE_THRESHOLD` must be at least 2. A successful refresh resets the source failure count. Re-enabling an automatically paused source is a deliberate operator action and also clears its automatic-pause audit state.

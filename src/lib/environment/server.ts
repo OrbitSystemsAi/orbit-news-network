@@ -14,6 +14,7 @@ const schema = z.object({
   DEFAULT_FEED_REFRESH_MINUTES: z.coerce.number().int().positive().default(30),
   FEED_REQUEST_TIMEOUT_MS: z.coerce.number().int().min(1000).max(30000).default(10000),
   REFRESH_LOCK_TIMEOUT_MINUTES: z.coerce.number().int().positive().default(5),
+  SOURCE_AUTO_PAUSE_FAILURE_THRESHOLD: z.coerce.number().int().min(2).max(20).default(3),
   CONTENT_MAX_TITLE_LENGTH: z.coerce.number().int().positive().default(200),
   CONTENT_MAX_SUMMARY_LENGTH: z.coerce.number().int().positive().default(1000),
   CONTENT_MAX_BODY_LENGTH: z.coerce.number().int().positive().default(50000),

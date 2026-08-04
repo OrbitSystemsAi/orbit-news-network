@@ -18,7 +18,7 @@ External images are blocked by default at the source level. Unless an operator e
 
 ## Duplicates and topics
 
-URLs are normalized by removing fragments, trailing slashes, and common tracking parameters while retaining identity parameters. A SHA-256 fingerprint combines canonical URL, normalized title, source, and publication day. ONN checks canonical URL, source identifier, and fingerprint. Articles inherit feed mappings and may gain conservative keyword-rule topics; assignment source and deterministic confidence are stored.
+URLs are normalized to HTTPS with a lowercase host, collapsed path slashes, no fragment or trailing slash, sorted query parameters, and common tracking parameters removed. Identity-bearing query parameters are retained. A SHA-256 fingerprint combines canonical URL, normalized title, source, and publication day. ONN checks canonical URL, source identifier, and fingerprint. A repeat URL remains the existing item even if source metadata or title changes; update-in-place is not part of the current ingestion contract. A different URL with a different source identifier and fingerprint is a new item, including legitimate republishing. Near-identical stories from different publishers retain separate provenance and are handled through diversity-aware curation rather than destructive cross-source merging. Articles inherit feed mappings and may gain conservative keyword-rule topics; assignment source and deterministic confidence are stored.
 
 ## Refresh selection and locking
 
@@ -27,6 +27,8 @@ A relevant-news request resolves authorized topics and active mapped sources. A 
 ## Retention and errors
 
 Every query requires active articles whose publication timestamp is within `NEWS_VISIBLE_HOURS` (24 by default). Refresh marks older records expired; permanent deletion after the configurable diagnostic window is a later maintenance operation. Each source records counts, duration, and a bounded safe error message. One failing source does not stop others.
+
+A source is automatically paused after `SOURCE_AUTO_PAUSE_FAILURE_THRESHOLD` consecutive refresh failures, three by default. The source record retains the pause timestamp and a safe reason visible to operators. A successful refresh resets the failure count. Automatically paused sources never reactivate themselves; an operator must review the failure and deliberately return the source to active status, which clears the failure and automatic-pause state.
 
 Publisher descriptions remain source-provided excerpts. ONN does not claim redistribution rights; administrators must review each feed’s terms before production activation.
 

@@ -13,6 +13,8 @@ type Source = {
   minimumRefreshIntervalMinutes: number;
   lastSuccessfulRefreshAt: string | null;
   consecutiveFailureCount: number;
+  autoPausedAt: string | null;
+  autoPauseReason: string | null;
   officialFeedConfirmed: boolean;
   termsReviewed: boolean;
   allowExternalImages: boolean;
@@ -210,7 +212,7 @@ export function SourceAdmin() {
           <td>{source.allowExternalImages ? "Feed images allowed" : "Images blocked"}</td>
           <td>{source.reviewedAt ? <><span>Reviewed {new Date(source.reviewedAt).toLocaleDateString()}</span><small>{source.policyReviewDueAt ? `Due ${new Date(source.policyReviewDueAt).toLocaleDateString()}` : ""}</small></> : "Not recorded"}</td>
           <td>{source.lastSuccessfulRefreshAt ? new Date(source.lastSuccessfulRefreshAt).toLocaleString() : "Never"}</td>
-          <td>{source.consecutiveFailureCount}</td>
+          <td>{source.consecutiveFailureCount}{source.autoPauseReason ? <small>{source.autoPauseReason}</small> : null}</td>
           <td><div className="row-actions">
             {source.status !== "ACTIVE" ? <button type="button" disabled={pendingAction === source.id} onClick={() => setStatus(source.id, "ACTIVE")}>Activate</button> : <button type="button" className="secondary-button" disabled={pendingAction === source.id} onClick={() => setStatus(source.id, "PAUSED")}>Pause</button>}
             {source.status !== "REJECTED" ? <button type="button" className="danger-button" disabled={pendingAction === source.id} onClick={() => setStatus(source.id, "REJECTED")}>Reject</button> : <button type="button" className="secondary-button" disabled={pendingAction === source.id} onClick={() => setStatus(source.id, "PENDING_REVIEW")}>Reopen</button>}

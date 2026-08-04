@@ -6,6 +6,7 @@ import { RssAtomConnector } from "../connectors/rss-atom";
 import { serverEnvironment } from "@/lib/environment/server";
 import type { Prisma } from "@/generated/prisma/client";
 import { permittedSourceImageUrl } from "./source-media";
+import { nextSourceFailureState } from "./source-health";
 
 const connector = new RssAtomConnector();
 type Source = Awaited<ReturnType<typeof loadSources>>[number];
@@ -45,10 +46,11 @@ export async function refreshRelevantSources(topicSlugs:string[], projectRefresh
         added++;sourceAdded++;
       }
       refreshed++;
-      await database.feedSource.update({where:{id:source.id},data:{lastSuccessfulRefreshAt:new Date(),refreshLockAt:null,consecutiveFailureCount:0}});
+      await database.feedSource.update({where:{id:source.id},data:{lastSuccessfulRefreshAt:new Date(),refreshLockAt:null,consecutiveFailureCount:0,autoPausedAt:null,autoPauseReason:null}});
       await database.processingRunSource.create({data:{processingRunId:run.id,feedSourceId:source.id,status:"SUCCEEDED",itemsReceived:items.length,itemsAdded:sourceAdded,duplicatesSkipped:sourceDuplicates,durationMs:Date.now()-started}});
     }catch(error){
-      await database.feedSource.update({where:{id:source.id},data:{refreshLockAt:null,consecutiveFailureCount:{increment:1}}});
+      const failure=nextSourceFailureState(source.consecutiveFailureCount,serverEnvironment.SOURCE_AUTO_PAUSE_FAILURE_THRESHOLD);
+      await database.feedSource.update({where:{id:source.id},data:{refreshLockAt:null,consecutiveFailureCount:failure.nextFailureCount,...(failure.shouldPause?{status:"PAUSED",autoPausedAt:new Date(),autoPauseReason:failure.reason}:{})}});
       await database.processingRunSource.create({data:{processingRunId:run.id,feedSourceId:source.id,status:"FAILED",durationMs:Date.now()-started,errorMessage:error instanceof Error?error.message.slice(0,300):"Unknown feed error"}});
     }
   }

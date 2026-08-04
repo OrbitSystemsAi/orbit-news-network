@@ -1,0 +1,76 @@
+{
+  "canonicalization": [
+    {
+      "name": "tracking parameters, fragment, and trailing slash",
+      "input": "https://Example.com/story/?id=7&utm_source=newsletter&fbclid=abc#section",
+      "expected": "https://example.com/story?id=7"
+    },
+    {
+      "name": "query parameter ordering",
+      "input": "https://example.com/story?z=2&a=3&a=1",
+      "expected": "https://example.com/story?a=1&a=3&z=2"
+    },
+    {
+      "name": "protocol upgrade",
+      "input": "http://example.com/story",
+      "expected": "https://example.com/story"
+    },
+    {
+      "name": "duplicate path slashes",
+      "input": "https://example.com//news///story/",
+      "expected": "https://example.com/news/story"
+    },
+    {
+      "name": "identity parameters remain",
+      "input": "https://example.com/story?article=42&mc_cid=tracking",
+      "expected": "https://example.com/story?article=42"
+    }
+  ],
+  "duplicates": [
+    {
+      "name": "tracking variant",
+      "candidateUrl": "https://example.com/story?utm_campaign=weekly",
+      "existingUrl": "https://example.com/story",
+      "candidateExternalId": null,
+      "existingExternalId": null,
+      "sameFingerprint": false,
+      "expected": true
+    },
+    {
+      "name": "protocol variant",
+      "candidateUrl": "http://example.com/story",
+      "existingUrl": "https://example.com/story",
+      "candidateExternalId": null,
+      "existingExternalId": null,
+      "sameFingerprint": false,
+      "expected": true
+    },
+    {
+      "name": "stable publisher identifier",
+      "candidateUrl": "https://example.com/new-location",
+      "existingUrl": "https://example.com/old-location",
+      "candidateExternalId": "publisher-123",
+      "existingExternalId": "publisher-123",
+      "sameFingerprint": false,
+      "expected": true
+    },
+    {
+      "name": "matching content fingerprint",
+      "candidateUrl": "https://syndicator.example/story",
+      "existingUrl": "https://publisher.example/story",
+      "candidateExternalId": null,
+      "existingExternalId": null,
+      "sameFingerprint": true,
+      "expected": true
+    },
+    {
+      "name": "distinct republishing event",
+      "candidateUrl": "https://example.com/story-republished",
+      "existingUrl": "https://example.com/story-original",
+      "candidateExternalId": "republished-2",
+      "existingExternalId": "original-1",
+      "sameFingerprint": false,
+      "expected": false
+    }
+  ]
+}

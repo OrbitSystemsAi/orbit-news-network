@@ -103,6 +103,7 @@ export async function PATCH(request: Request) {
       allowExternalImages: body.allowExternalImages,
       attributionNotes: body.attributionNotes,
       editorialNotes: body.editorialNotes,
+      ...(body.status === "ACTIVE" ? { consecutiveFailureCount: 0, autoPausedAt: null, autoPauseReason: null } : {}),
       reviewedAt: reviewed ? new Date() : undefined,
       reviewedByIdentifier: reviewed ? "onn-operator" : undefined,
       policyReviewDueAt: reviewed ? new Date(Date.now() + 180 * 24 * 3_600_000) : undefined,

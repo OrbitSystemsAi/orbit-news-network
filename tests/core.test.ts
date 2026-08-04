@@ -9,6 +9,8 @@ import { isRefreshLocked,isSourceFresh,requiredRefreshMinutes } from "@/server/s
 import { feedbackRequestSchema,relevantNewsRequestSchema } from "@/lib/validation/news";
 import { isPublicNetworkAddress } from "@/server/connectors/feed-safety";
 import { permittedSourceImageUrl } from "@/server/services/source-media";
+import { nextSourceFailureState } from "@/server/services/source-health";
+import normalization from "./fixtures/normalization-deduplication.json";
 
 const secret="a-secure-test-pepper-that-is-at-least-32-characters";
 describe("API keys",()=>{
@@ -31,10 +33,15 @@ describe("source media permissions",()=>{
  it("blocks feed images by default",()=>expect(permittedSourceImageUrl(false,"https://publisher.example/image.jpg")).toBeNull());
  it("passes images only when explicitly allowed",()=>expect(permittedSourceImageUrl(true,"https://publisher.example/image.jpg")).toBe("https://publisher.example/image.jpg"));
 });
+describe("source failure controls",()=>{
+ it("warns without pausing below the threshold",()=>expect(nextSourceFailureState(1,3)).toEqual({nextFailureCount:2,shouldPause:false,reason:null}));
+ it("pauses at the configured threshold",()=>expect(nextSourceFailureState(2,3)).toEqual({nextFailureCount:3,shouldPause:true,reason:"Automatically paused after 3 consecutive refresh failures."}));
+});
 describe("article identity",()=>{
- it("canonicalizes and removes tracking without removing identity parameters",()=>expect(canonicalizeUrl("HTTPS://Example.com/story/?id=7&utm_source=x#part")).toBe("https://example.com/story?id=7"));
+ it.each(normalization.canonicalization)("canonicalizes $name",({input,expected})=>expect(canonicalizeUrl(input)).toBe(expected));
  it("creates stable fingerprints",()=>{const input={canonicalUrl:"https://e.test/a?utm_medium=x",title:"Hello, World!",source:"Source",publishedAt:new Date("2026-07-27")};expect(contentFingerprint(input)).toBe(contentFingerprint({...input,canonicalUrl:"https://e.test/a"}))});
  it("detects deterministic duplicates",()=>expect(isDuplicate({canonicalUrl:"https://e.test/a?utm_campaign=x",fingerprint:"x"},[{canonicalUrl:"https://e.test/a",fingerprint:"y"}])).toBe(true));
+ it.each(normalization.duplicates)("handles duplicate case: $name",testCase=>expect(isDuplicate({canonicalUrl:testCase.candidateUrl,externalId:testCase.candidateExternalId,fingerprint:testCase.sameFingerprint?"same":"candidate"},[{canonicalUrl:testCase.existingUrl,externalId:testCase.existingExternalId,fingerprint:testCase.sameFingerprint?"same":"existing"}])).toBe(testCase.expected));
  it("enforces the 24-hour window and collected fallback",()=>{const now=new Date("2026-07-27T12:00:00Z");expect(isVisibleArticle(new Date("2026-07-26T13:00:00Z"),now,now)).toBe(true);expect(isVisibleArticle(new Date("2026-07-26T11:00:00Z"),now,now)).toBe(false);expect(isVisibleArticle(null,now,now)).toBe(true)});
 });
 describe("topics and relevance",()=>{
